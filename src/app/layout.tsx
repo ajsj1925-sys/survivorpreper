@@ -1,0 +1,43 @@
+import type { Metadata, Viewport } from "next";
+import "./globals.css";
+import { BRAND, SITE_URL } from "@/lib/config";
+import { PaywallModal } from "@/components/Paywall";
+import { SWRegister } from "@/components/SWRegister";
+import Script from "next/script";
+
+export const metadata: Metadata = {
+  metadataBase: new URL(SITE_URL),
+  title: {
+    default: `${BRAND.name} · Kit de emergencia 72 h, despensa y plan familiar`,
+    template: `%s · ${BRAND.name}`,
+  },
+  description:
+    "Prepara tu hogar para un apagón o una emergencia: calcula tu kit de 72 horas, controla la caducidad de tu despensa y crea un plan familiar imprimible. Gratis y sin registro.",
+  applicationName: BRAND.name,
+  openGraph: { type: "website", locale: "es_ES", siteName: BRAND.name },
+  appleWebApp: { capable: true, title: BRAND.name, statusBarStyle: "default" },
+  icons: { icon: "/icons/icon-192.png", apple: "/icons/icon-192.png" },
+};
+
+export const viewport: Viewport = {
+  themeColor: "#ea580c",
+  width: "device-width",
+  initialScale: 1,
+  viewportFit: "cover",
+};
+
+export default function RootLayout({ children }: { children: React.ReactNode }) {
+  return (
+    <html lang="es">
+      <body>
+        {children}
+        <PaywallModal />
+        <SWRegister />
+        {process.env.NEXT_PUBLIC_UMAMI_WEBSITE_ID && (
+          // Estadísticas sin cookies (Umami Cloud, plan gratuito)
+          <Script defer src="https://cloud.umami.is/script.js" data-website-id={process.env.NEXT_PUBLIC_UMAMI_WEBSITE_ID} strategy="afterInteractive" />
+        )}
+      </body>
+    </html>
+  );
+}

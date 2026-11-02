@@ -1,0 +1,231 @@
+"use client";
+
+import { create } from "zustand";
+import { createJSONStorage, persist } from "zustand/middleware";
+import { useEffect, useState } from "react";
+import { DEFAULTS } from "./config";
+import { CATALOG_BY_ID, type CatalogItem } from "./catalog";
+import { addDays, parseISODate, toISODate, today } from "./calc";
+import type { FamilyMember, FamilyPlan, Household, KitItem, PantryLot } from "./types";
+
+export function uid() {
+  if (typeof crypto !== "undefined" && "randomUUID" in crypto) return crypto.randomUUID();
+  return Math.random().toString(36).slice(2) + Date.now().toString(36);
+}
+
+const emptyPlan: FamilyPlan = {
+  householdName: "",
+  address: "",
+  meetingPointNear: "",
+  meetingPointFar: "",
+  outOfAreaContact: "",
+  docsLocation: "",
+  utilitiesShutoff: "",
+  notes: "",
+  members: [],
+};
+
+export interface BackupData {
+  household: Household;
+  kit: KitItem[];
+  pantry: PantryLot[];
+  plan: FamilyPlan;
+  checkedEssentials: string[];
+}
+
+interface AppState {
+  household: Household;
+  kit: KitItem[];
+  checkedEssentials: string[];
+  pantry: PantryLot[];
+  plan: FamilyPlan;
+  email: string | null;
+  isPro: boolean;
+
+  setHousehold: (patch: Partial<Household>) => void;
+  completeOnboarding: (patch: Partial<Household>) => void;
+
+  addKitItem: (item: Omit<KitItem, "id">) => void;
+  updateKitItem: (id: string, patch: Partial<KitItem>) => void;
+  removeKitItem: (id: string) => void;
+  toggleEssential: (id: string) => void;
+  addFromCatalog: (c: CatalogItem, n?: number) => void;
+  decFromCatalog: (catalogId: string) => void;
+  setCatalogQty: (c: CatalogItem, qty: number) => void;
+
+  addPantryLot: (lot: Omit<PantryLot, "id" | "addedAt">) => void;
+  removePantryLot: (id: string) => void;
+  consumeLot: (id: string) => void;
+  restockLot: (id: string) => void;
+
+  setPlan: (patch: Partial<Omit<FamilyPlan, "members">>) => void;
+  addMember: () => void;
+  updateMember: (id: string, patch: Partial<FamilyMember>) => void;
+  removeMember: (id: string) => void;
+
+  setEmail: (email: string) => void;
+  importData: (data: BackupData) => void;
+  resetAll: () => void;
+}
+
+const initial = {
+  household: {
+    adults: 1,
+    children: 0,
+    pets: 0,
+    kcalAdult: DEFAULTS.kcalAdult,
+    kcalChild: DEFAULTS.kcalChild,
+    waterPerPersonL: DEFAULTS.waterPerPersonL,
+    waterPerPetL: 1,
+    onboarded: false,
+  },
+  kit: [] as KitItem[],
+  checkedEssentials: [] as string[],
+  pantry: [] as PantryLot[],
+  plan: emptyPlan,
+  email: null as string | null,
+  isPro: false,
+};
+
+export const useStore = create<AppState>()(
+  persist(
+    (set) => ({
+      ...initial,
+
+      setHousehold: (patch) => set((s) => ({ household: { ...s.household, ...patch } })),
+      completeOnboarding: (patch) => set((s) => ({ household: { ...s.household, ...patch, onboarded: true } })),
+
+      addKitItem: (item) => set((s) => ({ kit: [...s.kit, { ...item, id: uid() }] })),
+      updateKitItem: (id, patch) =>
+        set((s) => ({ kit: s.kit.map((i) => (i.id === id ? { ...i, ...patch } : i)) })),
+      removeKitItem: (id) => set((s) => ({ kit: s.kit.filter((i) => i.id !== id) })),
+      toggleEssential: (id) =>
+        set((s) => ({
+          checkedEssentials: s.checkedEssentials.includes(id)
+            ? s.checkedEssentials.filter((e) => e !== id)
+            : [...s.checkedEssentials, id],
+        })),
+
+      addFromCatalog: (c, n = 1) =>
+        set((s) => {
+          const ex = s.kit.find((i) => i.catalogId === c.id);
+          if (ex) return { kit: s.kit.map((i) => (i === ex ? { ...i, qty: i.qty + n } : i)) };
+          return { kit: [...s.kit, kitFromCatalog(c, n)] };
+        }),
+      decFromCatalog: (catalogId) =>
+        set((s) => ({
+          kit: s.kit
+            .map((i) => (i.catalogId === catalogId ? { ...i, qty: i.qty - 1 } : i))
+            .filter((i) => i.qty > 0),
+        })),
+      setCatalogQty: (c, qty) =>
+        set((s) => {
+          const ex = s.kit.find((i) => i.catalogId === c.id);
+          if (qty <= 0) return { kit: s.kit.filter((i) => i.catalogId !== c.id) };
+          if (ex) return { kit: s.kit.map((i) => (i === ex ? { ...i, qty } : i)) };
+          return { kit: [...s.kit, kitFromCatalog(c, qty)] };
+        }),
+
+      addPantryLot: (lot) =>
+        set((s) => ({
+          pantry: [...s.pantry, { ...lot, id: uid(), addedAt: new Date().toISOString() }],
+        })),
+      removePantryLot: (id) => set((s) => ({ pantry: s.pantry.filter((l) => l.id !== id) })),
+      consumeLot: (id) =>
+        set((s) => ({
+          pantry: s.pantry.map((l) => (l.id === id ? { ...l, qty: l.qty - 1 } : l)).filter((l) => l.qty > 0),
+        })),
+      restockLot: (id) =>
+        set((s) => ({
+          pantry: s.pantry.map((l) => {
+            if (l.id !== id) return l;
+            // Nueva caducidad: la vida típica del catálogo o, si no hay, la misma duración que tenía el lote
+            const shelf = l.catalogId ? CATALOG_BY_ID[l.catalogId]?.shelfDays : null;
+            const span = Math.max(30, Math.round((parseISODate(l.expiresAt).getTime() - new Date(l.addedAt).getTime()) / 864e5));
+            return { ...l, addedAt: new Date().toISOString(), expiresAt: toISODate(addDays(today(), shelf ?? span)) };
+          }),
+        })),
+
+      setPlan: (patch) => set((s) => ({ plan: { ...s.plan, ...patch } })),
+      addMember: () =>
+        set((s) => ({
+          plan: {
+            ...s.plan,
+            members: [...s.plan.members, { id: uid(), name: "", phone: "", notes: "" }],
+          },
+        })),
+      updateMember: (id, patch) =>
+        set((s) => ({
+          plan: {
+            ...s.plan,
+            members: s.plan.members.map((m) => (m.id === id ? { ...m, ...patch } : m)),
+          },
+        })),
+      removeMember: (id) =>
+        set((s) => ({
+          plan: { ...s.plan, members: s.plan.members.filter((m) => m.id !== id) },
+        })),
+
+      setEmail: (email) => set({ email }),
+      importData: (d) =>
+        set({
+          household: { ...initial.household, ...d.household, onboarded: true },
+          kit: d.kit ?? [],
+          pantry: d.pantry ?? [],
+          plan: { ...emptyPlan, ...d.plan },
+          checkedEssentials: d.checkedEssentials ?? [],
+        }),
+      resetAll: () => set({ ...initial }),
+    }),
+    {
+      name: "survivoros-v1",
+      version: 2,
+      migrate: (persisted, version) => {
+        const p = persisted as Partial<AppState>;
+        if (version < 2) {
+          p.household = { ...initial.household, ...p.household, waterPerPetL: 1, onboarded: (p.kit?.length ?? 0) > 0 };
+          p.pantry = (p.pantry ?? []).map((l) => ({ ...l, kcal: l.kcal ?? 0, waterL: l.waterL ?? 0 }));
+        }
+        return p as AppState;
+      },
+      storage: createJSONStorage(() => localStorage),
+      // isPro NO se persiste desde el cliente: en Fase 2 vendrá verificado del servidor.
+      partialize: ({ isPro: _isPro, ...rest }) => rest,
+    },
+  ),
+);
+
+export function kitFromCatalog(c: CatalogItem, qty: number): KitItem {
+  return {
+    id: uid(),
+    catalogId: c.id,
+    emoji: c.emoji,
+    name: c.name,
+    category: c.cat,
+    qty,
+    weightG: c.weightG,
+    kcal: c.kcal,
+    waterL: c.waterL,
+    expiresAt: c.shelfDays ? toISODate(addDays(today(), c.shelfDays)) : null,
+  };
+}
+
+/** Estado de interfaz (no persistido): modal de pago. */
+interface UIState {
+  paywallFeature: string | null;
+  openPaywall: (feature: string) => void;
+  closePaywall: () => void;
+}
+
+export const useUI = create<UIState>()((set) => ({
+  paywallFeature: null,
+  openPaywall: (feature) => set({ paywallFeature: feature }),
+  closePaywall: () => set({ paywallFeature: null }),
+}));
+
+/** Evita desajustes de hidratación: el servidor no conoce el localStorage. */
+export function useHydrated() {
+  const [ok, setOk] = useState(false);
+  useEffect(() => setOk(true), []);
+  return ok;
+}

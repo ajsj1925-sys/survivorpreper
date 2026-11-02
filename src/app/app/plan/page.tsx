@@ -1,0 +1,8 @@
+import type { Metadata } from "next";
+import { PlanView } from "@/components/plan/PlanView";
+
+export const metadata: Metadata = { title: "Plan familiar" };
+
+export default function PlanPage() {
+  return <PlanView />;
+}
