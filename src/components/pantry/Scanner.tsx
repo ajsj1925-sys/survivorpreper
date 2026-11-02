@@ -60,14 +60,14 @@ export function Scanner({ open, onClose, onFound }: { open: boolean; onClose: ()
     try {
       const p = await lookupBarcode(c);
       if (!p) return setStatus("notfound");
-      onFound({ name: p.name, emoji: p.emoji, type: p.type, unit: "ud", kcal: p.kcal, waterL: 0, shelfDays: p.shelfDays, catalogId: p.catalogId, barcode: c });
+      onFound({ name: p.name, icon: p.icon, type: p.type, unit: "ud", kcal: p.kcal, waterL: 0, shelfDays: p.shelfDays, catalogId: p.catalogId, barcode: c });
     } catch {
       setStatus("notfound");
     }
   }
 
   return (
-    <Sheet open={open} onClose={onClose} title="📷 Escanear código">
+    <Sheet open={open} onClose={onClose} title="Escanear código">
       <div className="space-y-4 pb-2">
         {status !== "nocamera" && (
           <div className="relative overflow-hidden rounded-2xl bg-stone-900">

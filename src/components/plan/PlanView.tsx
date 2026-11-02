@@ -7,27 +7,28 @@ import { useHydrated, useStore } from "@/lib/store";
 import { track } from "@/lib/track";
 import type { FamilyPlan } from "@/lib/types";
 import { Card, cn } from "@/components/ui";
+import { Icon, IconTile } from "@/components/icons/Icon";
 
 type PlanKey = keyof Omit<FamilyPlan, "members">;
 
-const PRINT_ROWS: { key: PlanKey; label: string; emoji: string }[] = [
-  { key: "address", label: "Dirección", emoji: "🏠" },
-  { key: "meetingPointNear", label: "Encuentro cerca", emoji: "🏘️" },
-  { key: "meetingPointFar", label: "Encuentro lejos", emoji: "🗺️" },
-  { key: "outOfAreaContact", label: "Contacto fuera", emoji: "📞" },
-  { key: "docsLocation", label: "Documentos", emoji: "📄" },
-  { key: "utilitiesShutoff", label: "Llaves agua/gas/luz", emoji: "🔧" },
+const PRINT_ROWS: { key: PlanKey; label: string; icon: string }[] = [
+  { key: "address", label: "Dirección", icon: "house-line" },
+  { key: "meetingPointNear", label: "Encuentro cerca", icon: "map-pin" },
+  { key: "meetingPointFar", label: "Encuentro lejos", icon: "map-trifold" },
+  { key: "outOfAreaContact", label: "Contacto fuera", icon: "phone-call" },
+  { key: "docsLocation", label: "Documentos", icon: "identification-card" },
+  { key: "utilitiesShutoff", label: "Llaves agua/gas/luz", icon: "wrench" },
 ];
 
 /** Campo grande con icono y ✓ cuando está relleno. */
-function IconField({ emoji, label, value, onChange, placeholder, chips }: {
-  emoji: string; label: string; value: string; onChange: (v: string) => void; placeholder: string; chips?: string[];
+function IconField({ icon, label, value, onChange, placeholder, chips }: {
+  icon: string; label: string; value: string; onChange: (v: string) => void; placeholder: string; chips?: string[];
 }) {
   return (
     <div>
       <label className="flex items-center gap-3">
-        <span className={cn("flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl text-2xl", value ? "bg-emerald-50 ring-2 ring-emerald-400" : "bg-stone-100")}>
-          {emoji}
+        <span className={cn("flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl", value ? "bg-emerald-50 text-emerald-600 ring-2 ring-emerald-400" : "bg-stone-100 text-stone-500")}>
+          <Icon name={icon} className="h-6 w-6" />
         </span>
         <span className="min-w-0 flex-1">
           <span className="block text-xs font-medium text-stone-500">{label} {value && <span className="text-emerald-600">✓</span>}</span>
@@ -77,7 +78,7 @@ export function PlanView() {
     <>
       <div className="no-print">
         <div className="mb-4 flex items-center justify-between gap-2">
-          <h1 className="text-2xl font-bold tracking-tight">👨‍👩‍👧 Plan familiar</h1>
+          <h1 className="flex items-center gap-2.5 text-2xl font-bold tracking-tight"><IconTile name="users-three" tone="violet" size="sm" /> Plan familiar</h1>
           <div className="flex gap-2">
             <button onClick={() => { track("print_plan"); window.print(); }} aria-label="Imprimir"
               className="flex items-center gap-1.5 rounded-full bg-brand-500 px-3 py-1.5 text-sm font-medium text-white shadow-sm">
@@ -105,10 +106,10 @@ export function PlanView() {
         <div className="no-print space-y-4">
           {/* Personas */}
           <Card>
-            <h2 className="mb-3 font-semibold">🧑‍🤝‍🧑 Quiénes sois</h2>
+            <h2 className="mb-3 flex items-center gap-2 font-semibold"><Icon name="users" className="h-5 w-5 text-violet-600" /> Quiénes sois</h2>
             {plan.members.length === 0 && people > 0 && (
               <button onClick={createMembers} className="mb-3 w-full rounded-2xl border-2 border-dashed border-orange-300 bg-brand-50 py-3 text-sm font-medium text-brand-700">
-                ✨ Crear {people} ficha{people > 1 ? "s" : ""} ({"👤".repeat(household.adults)}{"🧒".repeat(household.children)})
+                <Icon name="sparkle" className="mr-1 inline h-4 w-4 align-[-2px]" /> Crear {people} ficha{people > 1 ? "s" : ""} para tu familia
               </button>
             )}
             <div className="space-y-2">
@@ -117,23 +118,23 @@ export function PlanView() {
                 return (
                   <div key={m.id} className="rounded-2xl bg-stone-50 p-3">
                     <div className="flex items-center gap-2">
-                      <span className="text-3xl">{i < household.adults ? "👤" : "🧒"}</span>
+                      <IconTile name={i < household.adults ? "user" : "baby"} tone={i < household.adults ? "indigo" : "sky"} size="sm" />
                       <input className="min-w-0 flex-1" placeholder="Nombre" value={m.name} onChange={(e) => updateMember(m.id, { name: e.target.value })} aria-label="Nombre" />
                       <button aria-label="Quitar persona" onClick={() => removeMember(m.id)} className="rounded-full p-1.5 text-stone-300 hover:text-red-500">
                         <Trash2 className="h-4 w-4" />
                       </button>
                     </div>
                     <div className="mt-2 flex items-center gap-2 pl-10">
-                      <span>📱</span>
+                      <Icon name="phone-call" className="h-5 w-5 shrink-0 text-stone-400" />
                       <input className="min-w-0 flex-1" inputMode="tel" placeholder="Teléfono" value={m.phone} onChange={(e) => updateMember(m.id, { phone: e.target.value })} aria-label="Teléfono" />
                     </div>
                     {notes ? (
                       <div className="mt-2 flex items-center gap-2 pl-10">
-                        <span>💊</span>
+                        <Icon name="pill" className="h-5 w-5 shrink-0 text-rose-500" />
                         <input className="min-w-0 flex-1" placeholder="Medicación, alergias…" value={m.notes} onChange={(e) => updateMember(m.id, { notes: e.target.value })} aria-label="Salud" />
                       </div>
                     ) : (
-                      <button onClick={() => setOpenNotes([...openNotes, m.id])} className="mt-2 pl-10 text-xs font-medium text-brand-600">+ 💊 Medicación o alergias</button>
+                      <button onClick={() => setOpenNotes([...openNotes, m.id])} className="mt-2 pl-10 text-xs font-medium text-brand-600">+ Medicación o alergias</button>
                     )}
                   </div>
                 );
@@ -146,25 +147,25 @@ export function PlanView() {
 
           {/* Encuentro */}
           <Card className="space-y-4">
-            <h2 className="font-semibold">📍 Dónde os encontráis</h2>
-            <IconField emoji="🏘️" label="Cerca de casa" value={plan.meetingPointNear} onChange={set("meetingPointNear")}
+            <h2 className="flex items-center gap-2 font-semibold"><Icon name="map-pin" className="h-5 w-5 text-violet-600" /> Dónde os encontráis</h2>
+            <IconField icon="map-pin" label="Cerca de casa" value={plan.meetingPointNear} onChange={set("meetingPointNear")}
               placeholder="Si no podéis entrar en casa" chips={["Portal de casa", "Puerta del colegio", "Plaza del barrio"]} />
-            <IconField emoji="🗺️" label="Fuera del barrio" value={plan.meetingPointFar} onChange={set("meetingPointFar")}
+            <IconField icon="map-trifold" label="Fuera del barrio" value={plan.meetingPointFar} onChange={set("meetingPointFar")}
               placeholder="Si hay que salir de la zona" chips={["Casa de los abuelos", "Casa de familiares", "Ayuntamiento"]} />
-            <IconField emoji="📞" label="Contacto fuera de la ciudad" value={plan.outOfAreaContact} onChange={set("outOfAreaContact")}
+            <IconField icon="phone-call" label="Contacto fuera de la ciudad" value={plan.outOfAreaContact} onChange={set("outOfAreaContact")}
               placeholder="Tía Ana · 600 000 000" />
           </Card>
 
           {/* Casa */}
           <Card className="space-y-4">
-            <h2 className="font-semibold">🏠 Tu casa</h2>
-            <IconField emoji="🏡" label="Nombre del hogar" value={plan.householdName} onChange={set("householdName")} placeholder="Familia García" />
-            <IconField emoji="📮" label="Dirección" value={plan.address} onChange={set("address")} placeholder="C/ Mayor 1, 3ºB" />
-            <IconField emoji="📄" label="Dónde están los documentos" value={plan.docsLocation} onChange={set("docsLocation")}
+            <h2 className="flex items-center gap-2 font-semibold"><Icon name="house" className="h-5 w-5 text-violet-600" /> Tu casa</h2>
+            <IconField icon="house" label="Nombre del hogar" value={plan.householdName} onChange={set("householdName")} placeholder="Familia García" />
+            <IconField icon="map-pin-line" label="Dirección" value={plan.address} onChange={set("address")} placeholder="C/ Mayor 1, 3ºB" />
+            <IconField icon="identification-card" label="Dónde están los documentos" value={plan.docsLocation} onChange={set("docsLocation")}
               placeholder="Carpeta azul" chips={["Carpeta en el armario", "Cajón de la entrada", "Mochila de emergencia"]} />
-            <IconField emoji="🔧" label="Llaves de agua, gas y luz" value={plan.utilitiesShutoff} onChange={set("utilitiesShutoff")}
+            <IconField icon="wrench" label="Llaves de agua, gas y luz" value={plan.utilitiesShutoff} onChange={set("utilitiesShutoff")}
               placeholder="Agua: bajo el fregadero · Luz: entrada" />
-            <IconField emoji="📝" label="Notas" value={plan.notes} onChange={set("notes")} placeholder="Mascotas, vecinos que necesitan ayuda…" />
+            <IconField icon="note-pencil" label="Notas" value={plan.notes} onChange={set("notes")} placeholder="Mascotas, vecinos que necesitan ayuda…" />
           </Card>
         </div>
 
@@ -183,7 +184,7 @@ export function PlanView() {
           <dl className="mt-3 space-y-2 text-sm">
             {PRINT_ROWS.map((r) => (
               <div key={r.key} className="grid grid-cols-[150px_1fr] gap-2">
-                <dt className="text-xs font-semibold uppercase text-stone-500">{r.emoji} {r.label}</dt>
+                <dt className="flex items-center gap-1 text-xs font-semibold uppercase text-stone-500"><Icon name={r.icon} className="h-4 w-4" /> {r.label}</dt>
                 <dd className="min-h-5 border-b border-dotted border-stone-300">{plan[r.key]}</dd>
               </div>
             ))}
@@ -206,7 +207,7 @@ export function PlanView() {
               </tbody>
             </table>
           )}
-          {plan.notes && <p className="mt-3 whitespace-pre-wrap text-sm">📝 {plan.notes}</p>}
+          {plan.notes && <p className="mt-3 whitespace-pre-wrap text-sm">{plan.notes}</p>}
           <div className="mt-5 border-t border-stone-200 pt-2 text-center text-[11px] text-stone-500">
             {BRAND.footer} · Crea el tuyo gratis en {SITE_URL.replace(/^https?:\/\//, "")}
           </div>

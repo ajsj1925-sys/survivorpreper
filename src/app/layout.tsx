@@ -1,5 +1,9 @@
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
+import { Plus_Jakarta_Sans } from "next/font/google";
+
+// Tipografía de la app (se descarga al compilar y se sirve desde nuestro dominio: sin peticiones a Google)
+const font = Plus_Jakarta_Sans({ subsets: ["latin"], variable: "--font-jakarta", display: "swap" });
 import { BRAND, SITE_URL } from "@/lib/config";
 import { PaywallModal } from "@/components/Paywall";
 import { SWRegister } from "@/components/SWRegister";
@@ -28,7 +32,7 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="es">
+    <html lang="es" className={font.variable}>
       <body>
         {children}
         <PaywallModal />

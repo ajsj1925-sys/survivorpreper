@@ -14,7 +14,7 @@ export type KitCategory =
 export interface KitItem {
   id: string;
   catalogId?: string;
-  emoji?: string;
+  icon?: string; // icono Phosphor
   name: string;
   category: KitCategory;
   qty: number;
@@ -30,7 +30,7 @@ export interface PantryLot {
   id: string;
   catalogId?: string;
   barcode?: string;
-  emoji?: string;
+  icon?: string; // icono Phosphor
   name: string;
   type: PantryType;
   qty: number;

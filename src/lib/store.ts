@@ -179,12 +179,18 @@ export const useStore = create<AppState>()(
     }),
     {
       name: "survivoros-v1",
-      version: 2,
+      version: 3,
       migrate: (persisted, version) => {
         const p = persisted as Partial<AppState>;
         if (version < 2) {
           p.household = { ...initial.household, ...p.household, waterPerPetL: 1, onboarded: (p.kit?.length ?? 0) > 0 };
           p.pantry = (p.pantry ?? []).map((l) => ({ ...l, kcal: l.kcal ?? 0, waterL: l.waterL ?? 0 }));
+        }
+        if (version < 3) {
+          // v3: de emojis a iconos Phosphor
+          const iconOf = (id?: string) => (id ? CATALOG_BY_ID[id]?.icon : undefined);
+          p.kit = (p.kit ?? []).map(({ emoji: _e, ...i }: KitItem & { emoji?: string }) => ({ ...i, icon: iconOf(i.catalogId) }));
+          p.pantry = (p.pantry ?? []).map(({ emoji: _e, ...l }: PantryLot & { emoji?: string }) => ({ ...l, icon: iconOf(l.catalogId) }));
         }
         return p as AppState;
       },
@@ -199,7 +205,7 @@ export function kitFromCatalog(c: CatalogItem, qty: number): KitItem {
   return {
     id: uid(),
     catalogId: c.id,
-    emoji: c.emoji,
+    icon: c.icon,
     name: c.name,
     category: c.cat,
     qty,

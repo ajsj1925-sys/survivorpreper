@@ -12,6 +12,7 @@ import { Button, Card } from "@/components/ui";
 import { Ring, Stepper } from "@/components/visual";
 import { track } from "@/lib/track";
 import { BackupCard } from "./BackupCard";
+import { Icon, IconTile } from "@/components/icons/Icon";
 
 export function HomeView() {
   const hydrated = useHydrated();
@@ -25,7 +26,7 @@ export function HomeView() {
   const home = homeSummary(s.kit, s.pantry, s.household);
 
   async function share() {
-    const text = `Mi hogar está preparado al ${total}% para una emergencia 🛡️ ¿Y el tuyo? Compruébalo gratis:`;
+    const text = `Mi hogar está preparado al ${total}% para una emergencia. ¿Y el tuyo? Compruébalo gratis:`;
     const url = `${SITE_URL}/nota/${total}`; // página con tarjeta visual para WhatsApp/redes
     track("share_score", { score: total });
     if (navigator.share) await navigator.share({ title: BRAND.name, text, url }).catch(() => {});
@@ -35,7 +36,7 @@ export function HomeView() {
   return (
     <>
       <div className="mb-4 flex items-center justify-between gap-2">
-        <h1 className="text-2xl font-bold tracking-tight">Hola 👋</h1>
+        <h1 className="text-2xl font-bold tracking-tight">Tu hogar</h1>
         <HouseholdChip />
       </div>
 
@@ -49,7 +50,7 @@ export function HomeView() {
           <div className={`text-2xl font-bold ${lab.tone}`}>{lab.text}</div>
           {total < 100 && (
             <Link href={next.href} className="mt-3 flex items-center gap-3 rounded-2xl bg-brand-50 p-3 text-left ring-1 ring-brand-100">
-              <span className="text-2xl">{next.emoji}</span>
+              <IconTile name={next.icon} tone="orange" size="sm" className="bg-white" />
               <span className="text-sm"><b>Siguiente paso (+{next.max - next.points} pts):</b><br />{next.tip}</span>
             </Link>
           )}
@@ -61,12 +62,12 @@ export function HomeView() {
 
       <div className="mb-4 grid grid-cols-2 gap-2">
         <Card className="p-4">
-          <div className="text-2xl">🎒</div>
+          <IconTile name="backpack" tone="orange" size="sm" />
           <div className="mt-1 text-2xl font-bold tabular-nums">{fmtNumber(Math.floor(kit.autonomyHours))} h</div>
           <div className="text-xs text-stone-500">con la mochila</div>
         </Card>
         <Card className="p-4">
-          <div className="text-2xl">🏠</div>
+          <IconTile name="house" tone="sky" size="sm" />
           <div className="mt-1 text-2xl font-bold tabular-nums">{fmtNumber(home.days, 1)} días</div>
           <div className="text-xs text-stone-500">en casa (kit + despensa)</div>
         </Card>
@@ -78,7 +79,7 @@ export function HomeView() {
           {parts.map((p) => (
             <li key={p.id}>
               <Link href={p.href} className="flex items-center gap-3">
-                <span className="text-2xl">{p.emoji}</span>
+                <IconTile name={p.icon} tone={p.points >= p.max ? "emerald" : "stone"} size="sm" />
                 <div className="min-w-0 flex-1">
                   <div className="flex justify-between text-sm">
                     <span className="font-medium">{p.label}</span>
@@ -97,7 +98,7 @@ export function HomeView() {
 
       <Link href="/app/apagon"
         className="mb-4 flex items-center gap-4 rounded-3xl bg-stone-900 p-4 text-white shadow-sm active:scale-[0.99]">
-        <span className="text-4xl">⚡</span>
+        <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-amber-400/15 text-amber-400"><Icon name="lightning" className="h-8 w-8" /></span>
         <div className="flex-1">
           <div className="font-semibold">Modo apagón</div>
           <div className="text-sm text-stone-300">Qué hacer ahora mismo, paso a paso</div>
@@ -123,19 +124,19 @@ function Onboarding() {
   const [children, setChildren] = useState(0);
   const [pets, setPets] = useState(0);
   const rows: [string, string, number, (n: number) => void, number][] = [
-    ["👤", "Adultos", adults, setAdults, 1],
-    ["🧒", "Niños", children, setChildren, 0],
-    ["🐾", "Mascotas", pets, setPets, 0],
+    ["user", "Adultos", adults, setAdults, 1],
+    ["baby", "Niños", children, setChildren, 0],
+    ["paw-print", "Mascotas", pets, setPets, 0],
   ];
   return (
     <div className="mx-auto max-w-md py-6 text-center">
-      <div className="text-6xl">🛡️</div>
+      <IconTile name="shield-check" tone="orange" size="xl" className="mx-auto" />
       <h1 className="mt-4 text-3xl font-bold tracking-tight">Prepara tu hogar en 2 minutos</h1>
       <p className="mt-2 text-stone-600">¿Cuántos sois en casa?</p>
       <Card className="mt-6 space-y-4 text-left">
         {rows.map(([e, l, v, set, min]) => (
           <div key={l} className="flex items-center justify-between">
-            <span className="flex items-center gap-3 text-lg font-medium"><span className="text-3xl">{e}</span>{l}</span>
+            <span className="flex items-center gap-3 text-lg font-medium"><IconTile name={e} tone={e === "paw-print" ? "orange" : e === "baby" ? "sky" : "indigo"} size="md" />{l}</span>
             <Stepper label={l} min={min} value={v} onChange={set} />
           </div>
         ))}

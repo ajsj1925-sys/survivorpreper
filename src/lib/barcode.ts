@@ -4,7 +4,7 @@ import type { PantryType } from "./types";
 export interface ScannedProduct {
   barcode: string;
   name: string;
-  emoji: string;
+  icon: string;
   kcal: number; // por unidad (envase)
   type: PantryType;
   shelfDays: number;
@@ -26,7 +26,7 @@ export async function lookupBarcode(code: string): Promise<ScannedProduct | null
   return {
     barcode: code,
     name,
-    emoji: guess?.emoji ?? "🛒",
+    icon: guess?.icon ?? "barcode",
     kcal: kcal100 && grams ? Math.round((kcal100 * grams) / 100) : guess?.kcal ?? 0,
     type: guess?.pantry ?? "alimento",
     shelfDays: guess?.shelfDays ?? 365,

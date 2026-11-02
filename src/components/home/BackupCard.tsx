@@ -6,6 +6,7 @@ import { toISODate, today } from "@/lib/calc";
 import { useStore, type BackupData } from "@/lib/store";
 import { track } from "@/lib/track";
 import { Card } from "@/components/ui";
+import { Icon, IconTile } from "@/components/icons/Icon";
 
 /** Copia de seguridad gratis: todo vive en el navegador, así que dejamos sacarlo y volver a meterlo. */
 export function BackupCard() {
@@ -41,22 +42,22 @@ export function BackupCard() {
       track("backup_import");
       setMsg(`✓ Copia restaurada: ${d.kit.length} cosas en el kit y ${d.pantry.length} lotes en la despensa.`);
     } catch {
-      setMsg("⚠️ Ese archivo no es una copia válida de SurvivorOS.");
+      setMsg("Ese archivo no es una copia válida de SurvivorOS.");
     }
   }
 
   return (
     <Card>
       <div className="flex items-center gap-3">
-        <span className="text-3xl">💾</span>
+        <IconTile name="floppy-disk" tone="indigo" size="md" />
         <div className="flex-1">
           <div className="font-semibold">Copia de seguridad</div>
           <div className="text-xs text-stone-500">Tus datos solo están en este móvil. Guarda una copia por si cambias de móvil o borras el navegador.</div>
         </div>
       </div>
       <div className="mt-3 grid grid-cols-2 gap-2">
-        <button onClick={exportFile} className="rounded-xl bg-stone-100 py-2.5 text-sm font-medium hover:bg-stone-200">⬇️ Exportar</button>
-        <button onClick={() => file.current?.click()} className="rounded-xl bg-stone-100 py-2.5 text-sm font-medium hover:bg-stone-200">⬆️ Importar</button>
+        <button onClick={exportFile} className="inline-flex items-center justify-center gap-1.5 rounded-xl bg-stone-100 py-2.5 text-sm font-medium hover:bg-stone-200"><Icon name="download-simple" className="h-5 w-5" /> Exportar</button>
+        <button onClick={() => file.current?.click()} className="inline-flex items-center justify-center gap-1.5 rounded-xl bg-stone-100 py-2.5 text-sm font-medium hover:bg-stone-200"><Icon name="upload-simple" className="h-5 w-5" /> Importar</button>
         <input ref={file} type="file" accept="application/json,.json" className="hidden" aria-label="Archivo de copia"
           onChange={(e) => { const f = e.target.files?.[0]; if (f) importFile(f); e.target.value = ""; }} />
       </div>

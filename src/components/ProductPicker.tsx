@@ -6,6 +6,7 @@ import { CAT_META, searchCatalog, type CatalogItem } from "@/lib/catalog";
 import { fmtNumber } from "@/lib/calc";
 import type { KitCategory } from "@/lib/types";
 import { cn } from "./ui";
+import { Icon, IconTile } from "./icons/Icon";
 
 function subtitle(c: CatalogItem) {
   if (c.waterL) return `${fmtNumber(c.waterL, 1)} L`;
@@ -66,7 +67,7 @@ export function ProductPicker({
                 cat === k ? "bg-stone-900 text-white" : "bg-stone-100 text-stone-700 hover:bg-stone-200",
               )}
             >
-              <span aria-hidden>{k === "todo" ? "✨" : CAT_META[k].emoji}</span>
+              <Icon name={k === "todo" ? "sparkle" : CAT_META[k].icon} className="h-4 w-4" />
               {k === "todo" ? "Todo" : CAT_META[k].label}
             </button>
           ))}
@@ -79,14 +80,17 @@ export function ProductPicker({
           return (
             <div key={c.id} className="relative">
               <button
-                onClick={() => onAdd(c)}
+                onClick={() => {
+                  navigator.vibrate?.(8); // pequeño "clic" táctil en Android
+                  onAdd(c);
+                }}
                 aria-label={`Añadir ${c.name}`}
                 className={cn(
-                  "flex h-full w-full flex-col items-center gap-1 rounded-2xl border p-2.5 text-center transition active:scale-95",
+                  "flex h-full w-full flex-col items-center gap-1.5 rounded-2xl border p-2.5 text-center transition active:scale-90",
                   n > 0 ? "border-brand-500 bg-brand-50" : "border-stone-200 bg-white hover:border-stone-300",
                 )}
               >
-                <span aria-hidden className="text-3xl leading-none">{c.emoji}</span>
+                <IconTile name={c.icon} tone={CAT_META[c.cat].tone} size="md" />
                 <span className="line-clamp-2 text-xs font-medium leading-tight">{c.name}</span>
                 <span className="text-[10px] text-stone-500">{subtitle(c)}</span>
               </button>

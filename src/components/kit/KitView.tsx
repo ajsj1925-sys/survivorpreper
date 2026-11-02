@@ -1,8 +1,8 @@
 "use client";
 
-import { Lock, ShoppingCart, Sparkles } from "lucide-react";
+import { Lock, ShoppingCart } from "lucide-react";
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { addDays, daysUntil, expiryLevel, fmtNumber, formatDays, kitSummary, toISODate, today } from "@/lib/calc";
 import { CATALOG, CAT_META, guessCatalog } from "@/lib/catalog";
 import { amazonSearchUrl, DEFAULTS } from "@/lib/config";
@@ -15,6 +15,7 @@ import { HouseholdChip } from "@/components/HouseholdChip";
 import { ProductPicker } from "@/components/ProductPicker";
 import { Button, Card, cn } from "@/components/ui";
 import { Meter, Ring, Sheet, Stepper } from "@/components/visual";
+import { Icon, IconTile } from "@/components/icons/Icon";
 
 const EXPIRY_CHIPS: [string, number | null][] = [["Sin fecha", null], ["6 meses", 183], ["1 año", 365], ["2 años", 730], ["5 años", 1825]];
 
@@ -23,6 +24,8 @@ export function KitView() {
   const s = useStore();
   const openPaywall = useUI((u) => u.openPaywall);
   const [recOpen, setRecOpen] = useState(false);
+  const [celebrate, setCelebrate] = useState(false);
+  const wasComplete = useRef<boolean | null>(null);
 
   const sum = useMemo(() => kitSummary(s.kit, s.household), [s.kit, s.household]);
   const counts = useMemo(() => {
@@ -33,6 +36,20 @@ export function KitView() {
   const ess = activeEssentials(s.household);
   const covered = ess.filter((e) => essentialCovered(e, s.kit, s.checkedEssentials));
   const pool = useMemo(() => CATALOG.filter((c) => c.cat !== "mascotas" || s.household.pets > 0), [s.household.pets]);
+
+  // Aviso de logro solo cuando se CRUZA la meta de 72 h (no al abrir la pantalla ya completa)
+  const complete = sum.autonomyHours >= DEFAULTS.targetHours;
+  useEffect(() => {
+    if (!hydrated) return;
+    const prev = wasComplete.current;
+    wasComplete.current = complete;
+    if (prev === false && complete) {
+      setCelebrate(true);
+      navigator.vibrate?.([20, 40, 20]);
+      const t = setTimeout(() => setCelebrate(false), 3500);
+      return () => clearTimeout(t);
+    }
+  }, [complete, hydrated]);
 
   if (!hydrated) return <div className="h-96 animate-pulse rounded-3xl bg-stone-200/60" />;
 
@@ -45,7 +62,7 @@ export function KitView() {
   return (
     <>
       <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
-        <h1 className="text-2xl font-bold tracking-tight">🎒 Kit 72 h</h1>
+        <h1 className="flex items-center gap-2.5 text-2xl font-bold tracking-tight"><IconTile name="backpack" tone="orange" size="sm" /> Kit 72 h</h1>
         <HouseholdChip />
       </div>
 
@@ -58,15 +75,15 @@ export function KitView() {
           <span className="text-xs text-stone-500">de 72 h</span>
         </Ring>
         <div className="w-full flex-1 space-y-3">
-          <Meter emoji="🥫" label="Comida" value={sum.foodDays} max={3} display={`${fmtNumber(sum.foodDays, 1)} / 3 días`} />
-          <Meter emoji="💧" label="Agua" value={sum.waterDays} max={3} display={`${fmtNumber(sum.waterDays, 1)} / 3 días`} />
+          <Meter icon="bowl-food" tone="amber" label="Comida" value={sum.foodDays} max={3} display={`${fmtNumber(sum.foodDays, 1)} / 3 días`} />
+          <Meter icon="drop" tone="sky" label="Agua" value={sum.waterDays} max={3} display={`${fmtNumber(sum.waterDays, 1)} / 3 días`} />
           <div className="flex items-center gap-3">
-            <span className="text-2xl" aria-hidden>🎒</span>
+            <IconTile name="backpack" tone="slate" size="sm" />
             <div className="min-w-0 flex-1">
               <div className="flex justify-between text-xs font-medium text-stone-500">
                 <span>Peso por adulto</span>
                 <span className={cn("tabular-nums", overweight ? "text-amber-600" : "text-stone-800")}>
-                  {fmtNumber(sum.weightPerAdultKg, 1)} / {DEFAULTS.maxBagKgPerAdult} kg {overweight && "⚠️"}
+                  {fmtNumber(sum.weightPerAdultKg, 1)} / {DEFAULTS.maxBagKgPerAdult} kg
                 </span>
               </div>
               <div className="mt-1 h-2.5 overflow-hidden rounded-full bg-stone-100">
@@ -80,8 +97,8 @@ export function KitView() {
 
       {sum.expired.length > 0 && (
         <div role="alert" className="mb-4 flex items-center gap-3 rounded-2xl bg-red-50 p-3 text-sm text-red-800 ring-1 ring-red-200">
-          <span className="text-2xl">⏰</span>
-          <span><b>Caducado:</b> {sum.expired.map((i) => `${i.emoji ?? ""} ${i.name}`).join(", ")}</span>
+          <Icon name="clock-countdown" className="h-7 w-7 shrink-0 text-red-600" />
+          <span><b>Caducado:</b> {sum.expired.map((i) => i.name).join(", ")}</span>
         </div>
       )}
 
@@ -98,8 +115,8 @@ export function KitView() {
               <button key={e.id} onClick={() => s.toggleEssential(e.id)} aria-pressed={ok} aria-label={e.label}
                 className="flex flex-col items-center gap-1">
                 <span className={cn("relative flex h-12 w-12 items-center justify-center rounded-2xl text-2xl transition",
-                  ok ? "bg-emerald-50 ring-2 ring-emerald-500" : "bg-stone-100 opacity-50 grayscale")}>
-                  {e.emoji}
+                  ok ? "bg-emerald-50 text-emerald-600 ring-2 ring-emerald-500" : "bg-stone-100 text-stone-400")}>
+                  <Icon name={e.icon} className="h-7 w-7" />
                   {ok && <span className="absolute -bottom-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-emerald-500 text-[11px] font-bold text-white">✓</span>}
                 </span>
                 <span className={cn("text-[11px] leading-tight", ok ? "text-stone-700" : "text-stone-400")}>{e.label}</span>
@@ -111,8 +128,8 @@ export function KitView() {
           <div className="mt-3 flex flex-wrap gap-2 border-t border-stone-100 pt-3">
             {ess.filter((e) => !covered.includes(e)).slice(0, 4).map((e) => (
               <a key={e.id} href={amazonSearchUrl(e.amazonQuery)} target="_blank" rel="sponsored noopener noreferrer"
-                className="rounded-full bg-stone-100 px-3 py-1 text-xs font-medium text-stone-700 hover:bg-stone-200">
-                {e.emoji} Comprar {e.label.toLowerCase()} ↗
+                className="inline-flex items-center gap-1.5 rounded-full bg-stone-100 px-3 py-1 text-xs font-medium text-stone-700 hover:bg-stone-200">
+                <Icon name={e.icon} className="h-4 w-4" /> Comprar {e.label.toLowerCase()} ↗
               </a>
             ))}
             <span className="w-full text-[10px] text-stone-400">Enlaces de afiliado: si compras, recibimos una pequeña comisión sin coste para ti.</span>
@@ -123,7 +140,7 @@ export function KitView() {
       {/* Kit recomendado */}
       <button onClick={() => setRecOpen(true)}
         className="mb-4 flex w-full items-center gap-4 rounded-3xl bg-gradient-to-r from-brand-500 to-orange-400 p-4 text-left text-white shadow-sm transition active:scale-[0.99]">
-        <Sparkles className="h-8 w-8 shrink-0" />
+        <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-white/20"><Icon name="sparkle" className="h-7 w-7" /></span>
         <div className="flex-1">
           <div className="font-semibold">Kit recomendado para tu hogar</div>
           <div className="text-sm text-white/85">{recDone} de {rec.length} cosas listas · toca para completarlo</div>
@@ -153,7 +170,7 @@ export function KitView() {
               return (
                 <li key={i.id} className={cn("flex items-center gap-2 rounded-full py-1 pl-2 pr-1 text-sm ring-1",
                   lvl === "expired" ? "bg-red-50 ring-red-300" : lvl === "red" ? "bg-amber-50 ring-amber-300" : "bg-stone-50 ring-stone-200")}>
-                  <span className="text-lg">{i.emoji ?? CAT_META[i.category].emoji}</span>
+                  <IconTile name={i.icon ?? CAT_META[i.category].icon} tone={CAT_META[i.category].tone} size="xs" />
                   <span className="max-w-36 truncate font-medium">{i.name}</span>
                   {(lvl === "expired" || lvl === "red") && i.expiresAt && (
                     <span className="text-[11px] font-semibold text-red-600">{formatDays(daysUntil(i.expiresAt))}</span>
@@ -174,12 +191,22 @@ export function KitView() {
 
       <EmailCapture source="kit" />
 
-      <Sheet open={recOpen} onClose={() => setRecOpen(false)} title="✨ Kit recomendado">
+      {celebrate && (
+        <div role="status" className="no-print fixed inset-x-4 bottom-24 z-50 mx-auto flex max-w-sm items-center gap-3 rounded-2xl bg-emerald-600 p-4 text-white shadow-xl md:bottom-8">
+          <Icon name="confetti" className="h-9 w-9 shrink-0" />
+          <div>
+            <div className="font-bold">¡Kit de 72 h completo!</div>
+            <div className="text-sm text-emerald-50">Tu hogar ya aguanta 3 días. Mira tu nota en Inicio.</div>
+          </div>
+        </div>
+      )}
+
+      <Sheet open={recOpen} onClose={() => setRecOpen(false)} title="Kit recomendado">
         <p className="mb-3 text-sm text-stone-500">Calculado para tu hogar y 72 horas. Ajusta lo que ya tienes.</p>
         <ul className="divide-y divide-stone-100" data-testid="rec-list">
           {rec.map((r) => (
             <li key={r.item.id} className="flex items-center gap-3 py-2">
-              <span className="text-2xl">{r.item.emoji}</span>
+              <IconTile name={r.item.icon} tone={CAT_META[r.item.cat].tone} size="sm" />
               <div className="min-w-0 flex-1">
                 <div className="truncate text-sm font-medium">{r.item.name}</div>
                 <div className={cn("text-xs", r.have >= r.target ? "text-emerald-600" : "text-stone-500")}>
@@ -229,7 +256,7 @@ function CustomItem() {
     if (!name.trim()) return;
     const g = guessCatalog(name);
     addKitItem({
-      name: name.trim(), category: cat, qty, kcal, waterL: water, weightG: g?.weightG ?? 200, emoji: g?.emoji,
+      name: name.trim(), category: cat, qty, kcal, waterL: water, weightG: g?.weightG ?? 200, icon: g?.icon,
       expiresAt: shelf ? toISODate(addDays(today(), shelf)) : null,
     });
     setName(""); setQty(1); setKcal(0); setWater(0); setShelf(null); setCat("otro");
@@ -237,28 +264,28 @@ function CustomItem() {
 
   return (
     <details className="mt-4 rounded-2xl bg-stone-50 p-3">
-      <summary className="cursor-pointer text-sm font-medium text-stone-600">➕ ¿No está? Añádelo a mano</summary>
+      <summary className="cursor-pointer text-sm font-medium text-stone-600">+ ¿No está? Añádelo a mano</summary>
       <div className="mt-3 space-y-3">
         <input className="w-full" placeholder="Nombre (ej: Lata de mejillones)" value={name} onChange={(e) => onName(e.target.value)} aria-label="Nombre del producto" />
         <div className="flex flex-wrap gap-1.5">
           {(Object.keys(CAT_META) as KitCategory[]).map((k) => (
             <button key={k} type="button" onClick={() => setCat(k)}
-              className={cn("rounded-full px-2.5 py-1 text-xs", cat === k ? "bg-stone-900 text-white" : "bg-white ring-1 ring-stone-200")}>
-              {CAT_META[k].emoji} {CAT_META[k].label}
+              className={cn("inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs", cat === k ? "bg-stone-900 text-white" : "bg-white ring-1 ring-stone-200")}>
+              <Icon name={CAT_META[k].icon} className="h-3.5 w-3.5" /> {CAT_META[k].label}
             </button>
           ))}
         </div>
         <div className="flex flex-wrap items-center gap-3">
           <Stepper label="Cantidad" min={1} value={qty} onChange={setQty} />
           {cat === "comida" && (
-            <label className="flex items-center gap-2 text-sm">🔥 <input type="number" className="w-24" value={kcal || ""} placeholder="kcal" onChange={(e) => setKcal(Number(e.target.value) || 0)} aria-label="kcal" /> kcal</label>
+            <label className="flex items-center gap-2 text-sm"><Icon name="flame" className="h-5 w-5 text-amber-600" /> <input type="number" className="w-24" value={kcal || ""} placeholder="kcal" onChange={(e) => setKcal(Number(e.target.value) || 0)} aria-label="kcal" /> kcal</label>
           )}
           {cat === "agua" && (
-            <label className="flex items-center gap-2 text-sm">💧 <input type="number" step={0.5} className="w-20" value={water || ""} placeholder="L" onChange={(e) => setWater(Number(e.target.value) || 0)} aria-label="litros" /> L</label>
+            <label className="flex items-center gap-2 text-sm"><Icon name="drop" className="h-5 w-5 text-sky-600" /> <input type="number" step={0.5} className="w-20" value={water || ""} placeholder="L" onChange={(e) => setWater(Number(e.target.value) || 0)} aria-label="litros" /> L</label>
           )}
         </div>
         <div className="flex flex-wrap gap-1.5">
-          <span className="self-center text-xs text-stone-500">📅 Caduca en</span>
+          <span className="inline-flex items-center gap-1 self-center text-xs text-stone-500"><Icon name="calendar-check" className="h-4 w-4" /> Caduca en</span>
           {EXPIRY_CHIPS.map(([l, d]) => (
             <button key={l} type="button" onClick={() => setShelf(d)}
               className={cn("rounded-full px-2.5 py-1 text-xs", shelf === d ? "bg-brand-500 text-white" : "bg-white ring-1 ring-stone-200")}>{l}</button>

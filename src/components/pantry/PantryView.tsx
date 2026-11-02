@@ -6,15 +6,20 @@ import { daysUntil, expiryLevel, fmtNumber, formatDays, homeSummary, lifePct, pa
 import { useHydrated, useStore, useUI } from "@/lib/store";
 import type { PantryLot, PantryType } from "@/lib/types";
 import { Card, cn } from "@/components/ui";
+import { Icon, IconTile } from "@/components/icons/Icon";
+import type { Tone } from "@/lib/catalog";
 import { AddLotSheet, type DraftProduct } from "./AddLotSheet";
 import { Scanner } from "./Scanner";
 
-const TYPES: [PantryType | "todos", string][] = [["todos", "✨ Todo"], ["alimento", "🥫 Comida"], ["agua", "💧 Agua"], ["medicina", "💊 Medicinas"], ["higiene", "🧼 Higiene"], ["otro", "📦 Otro"]];
+const TYPES: [PantryType | "todos", string, string][] = [["todos", "Todo", "sparkle"], ["alimento", "Comida", "bowl-food"], ["agua", "Agua", "drop"], ["medicina", "Medicinas", "pill"], ["higiene", "Higiene", "hand-soap"], ["otro", "Otro", "package"]];
+
+// Color de la baldosa de cada lote según su tipo
+const TYPE_TONE: Record<PantryType, Tone> = { alimento: "amber", agua: "sky", medicina: "rose", higiene: "teal", otro: "stone" };
 
 const GROUPS = [
-  { id: "ya", title: "Consumir ya", emoji: "🔴", match: (d: number) => d < 30, tone: "text-red-600" },
-  { id: "pronto", title: "Pronto", emoji: "🟡", match: (d: number) => d >= 30 && d < 183, tone: "text-amber-600" },
-  { id: "bien", title: "Bien", emoji: "🟢", match: (d: number) => d >= 183, tone: "text-emerald-600" },
+  { id: "ya", title: "Consumir ya", icon: "warning-circle", tile: "rose" as Tone, match: (d: number) => d < 30, tone: "text-red-600" },
+  { id: "pronto", title: "Pronto", icon: "clock-countdown", tile: "amber" as Tone, match: (d: number) => d >= 30 && d < 183, tone: "text-amber-600" },
+  { id: "bien", title: "Bien", icon: "check-circle", tile: "emerald" as Tone, match: (d: number) => d >= 183, tone: "text-emerald-600" },
 ];
 
 export function PantryView() {
@@ -40,10 +45,10 @@ export function PantryView() {
   return (
     <>
       <div className="mb-4 flex items-center justify-between gap-2">
-        <h1 className="text-2xl font-bold tracking-tight">🥫 Despensa</h1>
+        <h1 className="flex items-center gap-2.5 text-2xl font-bold tracking-tight"><IconTile name="basket" tone="amber" size="sm" /> Despensa</h1>
         <button onClick={() => openPaywall("Avisos de caducidad por email")}
           className="flex items-center gap-1.5 rounded-full bg-white px-3 py-1.5 text-xs font-medium shadow-sm ring-1 ring-stone-200">
-          <Lock className="h-3 w-3 text-brand-500" /> 🔔 Avisos
+          <Lock className="h-3 w-3 text-brand-500" /> <Icon name="bell-ringing" className="h-4 w-4" /> Avisos
         </button>
       </div>
 
@@ -51,17 +56,17 @@ export function PantryView() {
       <div className="mb-4 grid grid-cols-3 gap-2">
         {GROUPS.map((g) => (
           <Card key={g.id} className="p-3 text-center">
-            <div className="text-xl">{g.emoji}</div>
+            <IconTile name={g.icon} tone={g.tile} size="sm" className="mx-auto" />
             <div className={cn("text-2xl font-bold tabular-nums", g.tone)} data-testid={`count-${g.id}`}>{groupCount(g)}</div>
             <div className="text-[11px] text-stone-500">{g.title}</div>
           </Card>
         ))}
       </div>
       <div className="mb-4 flex items-center gap-3 rounded-2xl bg-sky-50 p-3 ring-1 ring-sky-100">
-        <span className="text-3xl">🏠</span>
+        <IconTile name="house" tone="sky" size="md" className="bg-white" />
         <div className="text-sm">
           <div>Con kit + despensa tu casa aguanta <b data-testid="home-days">{fmtNumber(home.days, 1)} días</b></div>
-          <div className="text-xs text-stone-500">🥫 {fmtNumber(home.foodDays, 1)} días de comida · 💧 {fmtNumber(home.waterDays, 1)} de agua</div>
+          <div className="mt-0.5 flex items-center gap-1 text-xs text-stone-500"><Icon name="bowl-food" className="h-4 w-4 text-amber-600" /> {fmtNumber(home.foodDays, 1)} días de comida · <Icon name="drop" className="h-4 w-4 text-sky-600" /> {fmtNumber(home.waterDays, 1)} de agua</div>
         </div>
       </div>
 
@@ -78,18 +83,18 @@ export function PantryView() {
       </div>
 
       <div className="-mx-1 mb-4 flex gap-2 overflow-x-auto px-1 [scrollbar-width:none]">
-        {TYPES.map(([t, l]) => (
+        {TYPES.map(([t, l, ic]) => (
           <button key={t} onClick={() => setFilter(t)}
-            className={cn("shrink-0 rounded-full px-3 py-1.5 text-sm font-medium",
+            className={cn("inline-flex shrink-0 items-center gap-1.5 rounded-full px-3 py-1.5 text-sm font-medium",
               filter === t ? "bg-stone-900 text-white" : "bg-white text-stone-600 ring-1 ring-stone-200")}>
-            {l}
+            <Icon name={ic} className="h-4 w-4" /> {l}
           </button>
         ))}
       </div>
 
       {lots.length === 0 ? (
         <Card className="py-10 text-center">
-          <div className="text-5xl">🧺</div>
+          <IconTile name="basket" tone="amber" size="xl" className="mx-auto" />
           <p className="mt-3 font-medium">Tu despensa está vacía</p>
           <p className="text-sm text-stone-500">Pulsa «Añadir» y toca lo que tienes. La caducidad se calcula sola.</p>
         </Card>
@@ -100,7 +105,7 @@ export function PantryView() {
             if (!items.length) return null;
             return (
               <section key={g.id}>
-                <h2 className={cn("mb-2 text-sm font-semibold", g.tone)}>{g.emoji} {g.title} · {items.length}</h2>
+                <h2 className={cn("mb-2 text-sm font-semibold", g.tone)}><Icon name={g.icon} className="mr-1 inline h-4 w-4 align-[-3px]" />{g.title} · {items.length}</h2>
                 <div className="grid gap-2 sm:grid-cols-2">
                   {items.map((l) => (
                     <LotCard key={l.id} lot={l} onConsume={() => consumeLot(l.id)} onRestock={() => restockLot(l.id)} onDelete={() => removePantryLot(l.id)} />
@@ -128,7 +133,7 @@ function LotCard({ lot, onConsume, onRestock, onDelete }: { lot: PantryLot; onCo
     <div data-level={lvl} data-name={lot.name}
       className={cn("rounded-2xl bg-white p-3 shadow-sm ring-1", lvl === "expired" ? "ring-red-300" : "ring-stone-200")}>
       <div className="flex items-start gap-3">
-        <span className="text-4xl leading-none">{lot.emoji ?? "📦"}</span>
+        <IconTile name={lot.icon ?? "package"} tone={TYPE_TONE[lot.type]} size="lg" />
         <div className="min-w-0 flex-1">
           <div className="flex items-start justify-between gap-2">
             <div className="truncate font-semibold">{lot.name}</div>
@@ -141,7 +146,7 @@ function LotCard({ lot, onConsume, onRestock, onDelete }: { lot: PantryLot; onCo
             <div className={cn("h-full rounded-full", bar)} style={{ width: `${Math.max(lvl === "expired" ? 100 : 4, life)}%` }} />
           </div>
           <div className={cn("mt-1 text-xs font-medium", lvl === "expired" || lvl === "red" ? "text-red-600" : "text-stone-500")}>
-            {days < 0 ? `⚠️ ${formatDays(days)}` : `Caduca en ${formatDays(days)}`}
+            {days < 0 ? formatDays(days) : `Caduca en ${formatDays(days)}`}
           </div>
         </div>
       </div>

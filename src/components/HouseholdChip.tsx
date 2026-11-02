@@ -4,14 +4,15 @@ import { Pencil } from "lucide-react";
 import { useState } from "react";
 import { useStore } from "@/lib/store";
 import type { Household } from "@/lib/types";
+import { Icon, IconTile } from "./icons/Icon";
 import { Sheet, Stepper } from "./visual";
 import { Button } from "./ui";
 
 export function householdText(a: number, c: number, p: number) {
-  return [`👤 ${a}`, c ? `🧒 ${c}` : "", p ? `🐾 ${p}` : ""].filter(Boolean).join("  ");
+  return [`${a} adulto${a === 1 ? "" : "s"}`, c ? `${c} niño${c === 1 ? "" : "s"}` : "", p ? `${p} mascota${p === 1 ? "" : "s"}` : ""].filter(Boolean).join(" · ");
 }
 
-/** Chip "👤 2 🧒 1 🐾 1 ✏️" que abre los ajustes del hogar. */
+/** Chip con iconos (adultos, niños, mascotas) que abre los ajustes del hogar. */
 export function HouseholdChip() {
   const h = useStore((s) => s.household);
   const setHousehold = useStore((s) => s.setHousehold);
@@ -23,18 +24,20 @@ export function HouseholdChip() {
         className="inline-flex items-center gap-2 rounded-full bg-white px-3 py-1.5 text-sm font-medium shadow-sm ring-1 ring-stone-200 hover:bg-stone-50"
         aria-label="Editar hogar"
       >
-        {householdText(h.adults, h.children, h.pets)}
+        <span className="flex items-center gap-1"><Icon name="user" className="h-4 w-4 text-stone-500" />{h.adults}</span>
+        {h.children > 0 && <span className="flex items-center gap-1"><Icon name="baby" className="h-4 w-4 text-stone-500" />{h.children}</span>}
+        {h.pets > 0 && <span className="flex items-center gap-1"><Icon name="paw-print" className="h-4 w-4 text-stone-500" />{h.pets}</span>}
         <Pencil className="h-3.5 w-3.5 text-stone-400" />
       </button>
       <Sheet open={open} onClose={() => setOpen(false)} title="Tu hogar">
         <div className="space-y-4 py-2">
           {([
-            ["👤", "Adultos", "adults", 1],
-            ["🧒", "Niños", "children", 0],
-            ["🐾", "Mascotas", "pets", 0],
+            ["user", "Adultos", "adults", 1],
+            ["baby", "Niños", "children", 0],
+            ["paw-print", "Mascotas", "pets", 0],
           ] as const).map(([e, label, key, min]) => (
             <div key={key} className="flex items-center justify-between">
-              <span className="flex items-center gap-3 text-base font-medium"><span className="text-3xl">{e}</span>{label}</span>
+              <span className="flex items-center gap-3 text-base font-medium"><IconTile name={e} tone={key === "pets" ? "orange" : key === "children" ? "sky" : "indigo"} size="sm" />{label}</span>
               <Stepper label={label} min={min} value={h[key]} onChange={(n) => setHousehold({ [key]: n } as Partial<Household>)} />
             </div>
           ))}

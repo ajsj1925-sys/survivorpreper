@@ -7,6 +7,7 @@ import { useStore, useUI } from "@/lib/store";
 import { track } from "@/lib/track";
 import { EmailCapture } from "./EmailCapture";
 import { Button } from "./ui";
+import { IconTile } from "./icons/Icon";
 
 /** Botón de una función Pro. Abre el modal con el nombre de la función. */
 export function ProButton({ feature, className }: { feature: string; className?: string }) {
@@ -51,7 +52,7 @@ export function PaywallModal() {
     >
       <div className="w-full max-w-md rounded-3xl bg-white p-6 shadow-xl" onClick={(e) => e.stopPropagation()}>
         <div className="flex items-start justify-between">
-          <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-brand-100 text-2xl">🚀</div>
+          <IconTile name="rocket-launch" tone="orange" size="md" />
           <button onClick={close} className="rounded-lg p-1 text-stone-400 hover:bg-stone-100" aria-label="Cerrar">
             <X className="h-5 w-5" />
           </button>

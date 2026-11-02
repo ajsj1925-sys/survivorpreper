@@ -3,6 +3,8 @@
 import { X } from "lucide-react";
 import { useEffect, type ReactNode } from "react";
 import { cn } from "./ui";
+import { IconTile } from "./icons/Icon";
+import type { Tone } from "@/lib/catalog";
 
 /** Anillo de progreso SVG. */
 export function Ring({
@@ -43,13 +45,13 @@ export function Ring({
   );
 }
 
-/** Barra con icono: “💧 ████░░ 2,1 / 3 días”. */
-export function Meter({ emoji, label, value, max, display }: { emoji: string; label: string; value: number; max: number; display: string }) {
+/** Barra con icono: “[icono] ████░░ 2,1 / 3 días”. */
+export function Meter({ icon, tone, label, value, max, display }: { icon: string; tone: Tone; label: string; value: number; max: number; display: string }) {
   const pct = max > 0 ? Math.min(100, (value / max) * 100) : 0;
   const color = pct >= 100 ? "bg-emerald-500" : pct >= 50 ? "bg-amber-500" : "bg-red-500";
   return (
     <div className="flex items-center gap-3">
-      <span className="text-2xl" aria-hidden>{emoji}</span>
+      <IconTile name={icon} tone={tone} size="sm" />
       <div className="min-w-0 flex-1">
         <div className="flex justify-between text-xs font-medium text-stone-500">
           <span>{label}</span>
@@ -103,8 +105,4 @@ export function Stepper({ value, onChange, min = 0, label }: { value: number; on
         className="h-9 w-9 rounded-full bg-white text-lg font-bold shadow-sm">+</button>
     </div>
   );
-}
-
-export function Emoji({ e, className }: { e: string; className?: string }) {
-  return <span aria-hidden className={cn("leading-none", className)}>{e}</span>;
 }

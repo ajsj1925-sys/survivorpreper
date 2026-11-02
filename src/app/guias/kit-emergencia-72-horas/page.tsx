@@ -32,7 +32,7 @@ export default function Guide72h() {
         <ul>
           {ESSENTIALS.map((e) => (
             <li key={e.id}>
-              {e.emoji} <b>{e.label}</b>: {e.hint}
+              <b>{e.label}</b>: {e.hint}
             </li>
           ))}
         </ul>

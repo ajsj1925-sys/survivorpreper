@@ -4,7 +4,7 @@ import type { FamilyPlan, Household, KitItem, PantryLot } from "./types";
 
 export interface ScorePart {
   id: string;
-  emoji: string;
+  icon: string;
   label: string;
   points: number;
   max: number;
@@ -32,31 +32,31 @@ export function readiness(kit: KitItem[], pantry: PantryLot[], plan: FamilyPlan,
 
   const parts: ScorePart[] = [
     {
-      id: "kit", emoji: "🎒", label: "Kit 72 h", max: 30,
+      id: "kit", icon: "backpack", label: "Kit 72 h", max: 30,
       points: Math.round(Math.min(1, k.autonomyHours / 72) * 30),
       tip: k.autonomyHours >= 72 ? "Kit completo" : `Te faltan ${Math.ceil(72 - k.autonomyHours)} h de ${k.limitingFactor ?? "comida y agua"}`,
       href: "/app/kit",
     },
     {
-      id: "esenciales", emoji: "✅", label: "Esenciales", max: 30,
+      id: "esenciales", icon: "seal-check", label: "Esenciales", max: 30,
       points: Math.round((covered.length / ess.length) * 30),
       tip: missing.length ? `Falta: ${missing.slice(0, 3).map((e) => e.label.toLowerCase()).join(", ")}${missing.length > 3 ? "…" : ""}` : "Todo cubierto",
       href: "/app/kit",
     },
     {
-      id: "despensa", emoji: "🥫", label: "Reservas en casa", max: 15,
+      id: "despensa", icon: "house", label: "Reservas en casa", max: 15,
       points: Math.round(Math.min(1, home.days / 7) * 15),
       tip: home.days >= 7 ? "Una semana cubierta" : `Aguantáis ${home.days.toFixed(1).replace(".", ",")} días; objetivo 7`,
       href: "/app/despensa",
     },
     {
-      id: "caducados", emoji: "📅", label: "Sin caducados", max: 10,
+      id: "caducados", icon: "calendar-check", label: "Sin caducados", max: 10,
       points: Math.max(0, 10 - expired * 3),
       tip: expired ? `${expired} producto${expired > 1 ? "s" : ""} caducado${expired > 1 ? "s" : ""}` : "Todo en fecha",
       href: "/app/despensa",
     },
     {
-      id: "plan", emoji: "👨‍👩‍👧", label: "Plan familiar", max: 15,
+      id: "plan", icon: "users-three", label: "Plan familiar", max: 15,
       points: Math.round((planDone / planChecks.length) * 15),
       tip: planDone === planChecks.length ? "Plan listo" : `${planChecks.length - planDone} apartado${planChecks.length - planDone > 1 ? "s" : ""} sin rellenar`,
       href: "/app/plan",

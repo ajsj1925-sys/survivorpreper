@@ -6,6 +6,8 @@ import { amazonSearchUrl } from "@/lib/config";
 import { shoppingList } from "@/lib/shopping";
 import { useHydrated, useStore } from "@/lib/store";
 import { Card, cn } from "@/components/ui";
+import { Icon, IconTile } from "@/components/icons/Icon";
+import { CAT_META } from "@/lib/catalog";
 
 const REASON = {
   caducado: { label: "Caducado", cls: "bg-red-100 text-red-700" },
@@ -28,16 +30,16 @@ export function ShoppingView() {
   return (
     <>
       <div className="mb-4 flex items-center justify-between gap-2">
-        <h1 className="text-2xl font-bold tracking-tight">🛒 Compra</h1>
+        <h1 className="flex items-center gap-2.5 text-2xl font-bold tracking-tight"><IconTile name="shopping-cart" tone="emerald" size="sm" /> Compra</h1>
         {lines.length > 0 && (
-          <button onClick={copy} className="rounded-full bg-white px-3 py-1.5 text-sm font-medium shadow-sm ring-1 ring-stone-200">📤 Enviar lista</button>
+          <button onClick={copy} className="inline-flex items-center gap-1.5 rounded-full bg-white px-3 py-1.5 text-sm font-medium shadow-sm ring-1 ring-stone-200"><Icon name="share-network" className="h-4 w-4" /> Enviar lista</button>
         )}
       </div>
       <p className="mb-4 text-sm text-stone-500">Se hace sola: lo que falta de tu kit recomendado y lo que caduca en la despensa.</p>
 
       {lines.length === 0 ? (
         <Card className="py-10 text-center">
-          <div className="text-5xl">🎉</div>
+          <IconTile name="confetti" tone="emerald" size="xl" className="mx-auto" />
           <p className="mt-3 font-medium">No te falta nada</p>
           <Link href="/app" className="text-sm text-brand-600">Volver al inicio</Link>
         </Card>
@@ -45,7 +47,7 @@ export function ShoppingView() {
         <ul className="space-y-2" data-testid="shopping-list">
           {lines.map((l) => (
             <li key={l.key} className="flex items-center gap-3 rounded-2xl bg-white p-3 shadow-sm ring-1 ring-stone-200">
-              <span className="text-3xl">{l.emoji}</span>
+              <IconTile name={l.icon} tone={l.catalog ? CAT_META[l.catalog.cat].tone : "stone"} size="md" />
               <div className="min-w-0 flex-1">
                 <div className="truncate font-medium">{l.name} <span className="text-stone-400">×{l.qty}</span></div>
                 <span className={cn("rounded-full px-2 py-0.5 text-[11px] font-semibold", REASON[l.reason].cls)}>{REASON[l.reason].label}</span>

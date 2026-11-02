@@ -9,10 +9,12 @@ import type { PantryType } from "@/lib/types";
 import { ProductPicker } from "@/components/ProductPicker";
 import { Button, cn } from "@/components/ui";
 import { Sheet, Stepper } from "@/components/visual";
+import { Icon, IconTile } from "@/components/icons/Icon";
+import type { Tone } from "@/lib/catalog";
 
 export interface DraftProduct {
   name: string;
-  emoji: string;
+  icon: string;
   type: PantryType;
   unit: string;
   kcal: number;
@@ -23,11 +25,12 @@ export interface DraftProduct {
 }
 
 export function draftFromCatalog(c: CatalogItem): DraftProduct {
-  return { name: c.name, emoji: c.emoji, type: c.pantry ?? "otro", unit: c.unit, kcal: c.kcal, waterL: c.waterL, shelfDays: c.shelfDays ?? 365, catalogId: c.id };
+  return { name: c.name, icon: c.icon, type: c.pantry ?? "otro", unit: c.unit, kcal: c.kcal, waterL: c.waterL, shelfDays: c.shelfDays ?? 365, catalogId: c.id };
 }
 
 const EXPIRY: [string, number][] = [["1 mes", 30], ["3 meses", 91], ["6 meses", 183], ["1 año", 365], ["2 años", 730]];
-const PLACES: [string, string][] = [["🏠", "Despensa"], ["🧊", "Nevera"], ["📦", "Trastero"], ["🩹", "Botiquín"], ["🚗", "Coche"]];
+const PLACES: [string, string][] = [["house", "Despensa"], ["snowflake", "Nevera"], ["archive", "Trastero"], ["first-aid-kit", "Botiquín"], ["car-simple", "Coche"]];
+const TYPE_TONE: Record<PantryType, Tone> = { alimento: "amber", agua: "sky", medicina: "rose", higiene: "teal", otro: "stone" };
 
 /** Añadir en 2 toques: eliges producto → confirmas (caducidad ya estimada). */
 export function AddLotSheet({ open, onClose, initial }: { open: boolean; onClose: () => void; initial?: DraftProduct | null }) {
@@ -54,7 +57,7 @@ export function AddLotSheet({ open, onClose, initial }: { open: boolean; onClose
   function save() {
     if (!product || !expires) return;
     addPantryLot({
-      name: product.name, emoji: product.emoji, type: product.type, unit: product.unit, qty, kcal: product.kcal,
+      name: product.name, icon: product.icon, type: product.type, unit: product.unit, qty, kcal: product.kcal,
       waterL: product.waterL, expiresAt: expires, location: place, catalogId: product.catalogId, barcode: product.barcode,
     });
     onClose();
@@ -74,10 +77,10 @@ export function AddLotSheet({ open, onClose, initial }: { open: boolean; onClose
                 <ArrowLeft className="h-5 w-5" />
               </button>
             )}
-            <span className="text-5xl">{product.emoji}</span>
+            <IconTile name={product.icon} tone={TYPE_TONE[product.type]} size="xl" />
             <div>
               <div className="text-lg font-semibold leading-tight">{product.name}</div>
-              {product.kcal > 0 && <div className="text-sm text-stone-500">🔥 {product.kcal} kcal / {product.unit}</div>}
+              {product.kcal > 0 && <div className="mt-1 flex items-center gap-1 text-sm text-stone-500"><Icon name="flame" className="h-4 w-4 text-amber-600" /> {product.kcal} kcal / {product.unit}</div>}
             </div>
           </div>
 
@@ -88,7 +91,7 @@ export function AddLotSheet({ open, onClose, initial }: { open: boolean; onClose
 
           <div>
             <div className="mb-2 flex items-center justify-between">
-              <span className="font-medium">📅 Caduca</span>
+              <span className="flex items-center gap-1.5 font-medium"><Icon name="calendar-check" className="h-5 w-5 text-stone-500" /> Caduca</span>
               <span className="text-sm text-stone-500">{expires && formatDays(daysUntil(expires))}</span>
             </div>
             <div className="flex flex-wrap gap-2">
@@ -111,8 +114,8 @@ export function AddLotSheet({ open, onClose, initial }: { open: boolean; onClose
             <div className="flex flex-wrap gap-2">
               {PLACES.map(([e, l]) => (
                 <button key={l} onClick={() => setPlace(l)}
-                  className={cn("rounded-full px-3 py-1.5 text-sm", place === l ? "bg-stone-900 text-white" : "bg-stone-100")}>
-                  {e} {l}
+                  className={cn("inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-sm", place === l ? "bg-stone-900 text-white" : "bg-stone-100")}>
+                  <Icon name={e} className="h-4 w-4" /> {l}
                 </button>
               ))}
             </div>
