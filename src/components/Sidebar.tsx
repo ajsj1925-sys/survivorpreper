@@ -2,10 +2,11 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Backpack, BookOpen, House, Package, ShieldCheck, ShoppingCart, Users, Zap } from "lucide-react";
-import { BRAND } from "@/lib/config";
+import { Backpack, BookOpen, House, Package, ShoppingCart, Users, Zap } from "lucide-react";
 import { cn } from "./ui";
 import { ProButton } from "./Paywall";
+import { Logo } from "./Logo";
+import { ThemeToggle } from "./Theme";
 
 const NAV = [
   { href: "/app", label: "Inicio", icon: House },
@@ -24,8 +25,7 @@ export function Sidebar() {
       {/* Escritorio: menú lateral */}
       <aside className="no-print fixed inset-y-0 left-0 hidden w-60 flex-col border-r border-stone-200 bg-white p-4 md:flex">
         <Link href="/" className="mb-8 flex items-center gap-2 px-2">
-          <ShieldCheck className="h-7 w-7 text-brand-500" />
-          <span className="text-lg font-bold tracking-tight">{BRAND.name}</span>
+          <Logo />
         </Link>
         <nav className="flex flex-col gap-1">
           {NAV.map(({ href, label, icon: Icon }) => (
@@ -57,6 +57,7 @@ export function Sidebar() {
           </Link>
         </nav>
         <div className="mt-auto">
+          <div className="mb-3"><ThemeToggle withLabel /></div>
           <ProButton feature="Varios hogares" className="w-full text-xs" />
           <p className="mt-3 px-1 text-[11px] leading-snug text-stone-400">
             Tus datos se guardan solo en este dispositivo. Funciona sin conexión.

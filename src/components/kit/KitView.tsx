@@ -1,6 +1,6 @@
 "use client";
 
-import { Lock, ShoppingCart } from "lucide-react";
+import { ShoppingCart } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { addDays, daysUntil, expiryLevel, fmtNumber, formatDays, kitSummary, toISODate, today } from "@/lib/calc";
@@ -8,7 +8,8 @@ import { CATALOG, CAT_META, guessCatalog } from "@/lib/catalog";
 import { amazonSearchUrl, DEFAULTS } from "@/lib/config";
 import { activeEssentials, essentialCovered } from "@/lib/essentials";
 import { recommendationStatus } from "@/lib/recommend";
-import { useHydrated, useStore, useUI } from "@/lib/store";
+import { FREE_KITS, MAIN_KIT, useHydrated, useStore, useUI } from "@/lib/store";
+import { KitSwitcher } from "./KitSwitcher";
 import type { KitCategory } from "@/lib/types";
 import { EmailCapture } from "@/components/EmailCapture";
 import { HouseholdChip } from "@/components/HouseholdChip";
@@ -25,16 +26,19 @@ export function KitView() {
   const openPaywall = useUI((u) => u.openPaywall);
   const [recOpen, setRecOpen] = useState(false);
   const [celebrate, setCelebrate] = useState(false);
-  const wasComplete = useRef<boolean | null>(null);
+  const wasComplete = useRef<{ kit: string; done: boolean } | null>(null);
 
-  const sum = useMemo(() => kitSummary(s.kit, s.household), [s.kit, s.household]);
+  // Solo lo que hay en la mochila activa (casa, coche…)
+  const items = useMemo(() => s.kit.filter((i) => (i.kitId ?? MAIN_KIT) === s.activeKitId), [s.kit, s.activeKitId]);
+  const activeKit = s.kits.find((k) => k.id === s.activeKitId) ?? s.kits[0];
+  const sum = useMemo(() => kitSummary(items, s.household), [items, s.household]);
   const counts = useMemo(() => {
     const m: Record<string, number> = {};
-    for (const i of s.kit) if (i.catalogId) m[i.catalogId] = (m[i.catalogId] ?? 0) + i.qty;
+    for (const i of items) if (i.catalogId) m[i.catalogId] = (m[i.catalogId] ?? 0) + i.qty;
     return m;
-  }, [s.kit]);
+  }, [items]);
   const ess = activeEssentials(s.household);
-  const covered = ess.filter((e) => essentialCovered(e, s.kit, s.checkedEssentials));
+  const covered = ess.filter((e) => essentialCovered(e, items, s.activeKitId === MAIN_KIT ? s.checkedEssentials : []));
   const pool = useMemo(() => CATALOG.filter((c) => c.cat !== "mascotas" || s.household.pets > 0), [s.household.pets]);
 
   // Aviso de logro solo cuando se CRUZA la meta de 72 h (no al abrir la pantalla ya completa)
@@ -42,21 +46,22 @@ export function KitView() {
   useEffect(() => {
     if (!hydrated) return;
     const prev = wasComplete.current;
-    wasComplete.current = complete;
-    if (prev === false && complete) {
+    wasComplete.current = { kit: s.activeKitId, done: complete };
+    // Solo celebra si en ESTA misma mochila se pasa de "no completa" a "completa"
+    if (prev && prev.kit === s.activeKitId && !prev.done && complete) {
       setCelebrate(true);
       navigator.vibrate?.([20, 40, 20]);
       const t = setTimeout(() => setCelebrate(false), 3500);
       return () => clearTimeout(t);
     }
-  }, [complete, hydrated]);
+  }, [complete, hydrated, s.activeKitId]);
 
   if (!hydrated) return <div className="h-96 animate-pulse rounded-3xl bg-stone-200/60" />;
 
   const pct = (sum.autonomyHours / DEFAULTS.targetHours) * 100;
   const ringColor = pct >= 100 ? "#059669" : pct >= 50 ? "#d97706" : "#dc2626";
   const overweight = sum.weightPerAdultKg > DEFAULTS.maxBagKgPerAdult;
-  const rec = recommendationStatus(s.household, s.kit);
+  const rec = recommendationStatus(s.household, items);
   const recDone = rec.filter((r) => r.have >= r.target).length;
 
   return (
@@ -65,6 +70,8 @@ export function KitView() {
         <h1 className="flex items-center gap-2.5 text-2xl font-bold tracking-tight"><IconTile name="backpack" tone="orange" size="sm" /> Kit 72 h</h1>
         <HouseholdChip />
       </div>
+
+      <KitSwitcher onLimit={() => openPaywall(`Más de ${FREE_KITS} mochilas`)} />
 
       {/* Panel visual */}
       <Card className="mb-4 flex flex-col items-center gap-5 sm:flex-row">
@@ -156,19 +163,16 @@ export function KitView() {
       </Card>
 
       {/* Lo que llevas */}
-      {s.kit.length > 0 && (
+      {items.length > 0 && (
         <Card className="mb-4">
           <div className="mb-3 flex items-center justify-between">
-            <h2 className="font-semibold">En tu mochila</h2>
-            <button onClick={() => openPaywall("Varios kits (casa, coche, trabajo)")} className="flex items-center gap-1 text-xs font-medium text-stone-500">
-              <Lock className="h-3 w-3 text-brand-500" /> Varios kits
-            </button>
+            <h2 className="font-semibold">En la mochila «{activeKit.name}»</h2>
           </div>
           <ul className="flex flex-wrap gap-2" data-testid="kit-list">
-            {s.kit.map((i) => {
+            {items.map((i) => {
               const lvl = i.expiresAt ? expiryLevel(i.expiresAt) : null;
               return (
-                <li key={i.id} className={cn("flex items-center gap-2 rounded-full py-1 pl-2 pr-1 text-sm ring-1",
+                <li key={i.id} className={cn("anim-pop flex items-center gap-2 rounded-full py-1 pl-2 pr-1 text-sm ring-1",
                   lvl === "expired" ? "bg-red-50 ring-red-300" : lvl === "red" ? "bg-amber-50 ring-amber-300" : "bg-stone-50 ring-stone-200")}>
                   <IconTile name={i.icon ?? CAT_META[i.category].icon} tone={CAT_META[i.category].tone} size="xs" />
                   <span className="max-w-36 truncate font-medium">{i.name}</span>
@@ -186,6 +190,13 @@ export function KitView() {
               );
             })}
           </ul>
+          {s.activeKitId !== MAIN_KIT && (
+            <button
+              onClick={() => confirm(`¿Borrar la mochila «${activeKit.name}» y todo lo que tiene?`) && s.removeKit(s.activeKitId)}
+              className="mt-4 text-xs font-medium text-red-600 hover:underline">
+              Borrar esta mochila
+            </button>
+          )}
         </Card>
       )}
 

@@ -96,7 +96,7 @@ export function ProductPicker({
               </button>
               {n > 0 && (
                 <>
-                  <span className="pointer-events-none absolute -right-1.5 -top-1.5 flex h-6 min-w-6 items-center justify-center rounded-full bg-brand-500 px-1.5 text-xs font-bold text-white shadow">
+                  <span key={n} className="anim-pop pointer-events-none absolute -right-1.5 -top-1.5 flex h-6 min-w-6 items-center justify-center rounded-full bg-brand-500 px-1.5 text-xs font-bold text-white shadow">
                     {n}
                   </span>
                   {onDec && (

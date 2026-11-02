@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ShieldCheck } from "lucide-react";
+import { Logo } from "./Logo";
 import { BRAND } from "@/lib/config";
 
 export function PublicHeader() {
@@ -7,8 +7,7 @@ export function PublicHeader() {
     <header className="sticky top-0 z-30 border-b border-stone-200 bg-stone-50/90 backdrop-blur">
       <div className="mx-auto flex max-w-5xl items-center justify-between px-4 py-3">
         <Link href="/" className="flex items-center gap-2">
-          <ShieldCheck className="h-6 w-6 text-brand-500" />
-          <span className="font-bold tracking-tight">{BRAND.name}</span>
+          <Logo />
         </Link>
         <nav className="flex items-center gap-4 text-sm">
           <Link href="/guias/kit-emergencia-72-horas" className="hidden text-stone-600 hover:text-stone-900 sm:inline">

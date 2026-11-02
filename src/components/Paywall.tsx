@@ -44,13 +44,13 @@ export function PaywallModal() {
 
   return (
     <div
-      className="no-print fixed inset-0 z-50 flex items-end justify-center bg-stone-900/50 p-4 sm:items-center"
+      className="anim-fade no-print fixed inset-0 z-50 flex items-end justify-center bg-stone-900/50 p-4 sm:items-center"
       onClick={close}
       role="dialog"
       aria-modal="true"
       aria-labelledby="paywall-title"
     >
-      <div className="w-full max-w-md rounded-3xl bg-white p-6 shadow-xl" onClick={(e) => e.stopPropagation()}>
+      <div className="anim-sheet w-full max-w-md rounded-3xl bg-white p-6 shadow-xl" onClick={(e) => e.stopPropagation()}>
         <div className="flex items-start justify-between">
           <IconTile name="rocket-launch" tone="orange" size="md" />
           <button onClick={close} className="rounded-lg p-1 text-stone-400 hover:bg-stone-100" aria-label="Cerrar">

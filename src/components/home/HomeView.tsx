@@ -6,12 +6,13 @@ import { useState } from "react";
 import { fmtNumber, homeSummary, kitSummary } from "@/lib/calc";
 import { BRAND, SITE_URL } from "@/lib/config";
 import { readiness, scoreLabel } from "@/lib/score";
-import { useHydrated, useStore } from "@/lib/store";
+import { mainKitItems, useHydrated, useStore } from "@/lib/store";
 import { HouseholdChip } from "@/components/HouseholdChip";
 import { Button, Card } from "@/components/ui";
 import { Ring, Stepper } from "@/components/visual";
 import { track } from "@/lib/track";
 import { BackupCard } from "./BackupCard";
+import { ThemeToggle } from "@/components/Theme";
 import { Icon, IconTile } from "@/components/icons/Icon";
 
 export function HomeView() {
@@ -20,10 +21,11 @@ export function HomeView() {
   if (!hydrated) return <div className="h-96 animate-pulse rounded-3xl bg-stone-200/60" />;
   if (!s.household.onboarded) return <Onboarding />;
 
-  const { total, parts, next } = readiness(s.kit, s.pantry, s.plan, s.household, s.checkedEssentials);
+  const mainKit = mainKitItems(s.kit); // la mochila de casa es la que puntúa
+  const { total, parts, next } = readiness(mainKit, s.pantry, s.plan, s.household, s.checkedEssentials);
   const lab = scoreLabel(total);
-  const kit = kitSummary(s.kit, s.household);
-  const home = homeSummary(s.kit, s.pantry, s.household);
+  const kit = kitSummary(mainKit, s.household);
+  const home = homeSummary(mainKit, s.pantry, s.household);
 
   async function share() {
     const text = `Mi hogar está preparado al ${total}% para una emergencia. ¿Y el tuyo? Compruébalo gratis:`;
@@ -37,7 +39,10 @@ export function HomeView() {
     <>
       <div className="mb-4 flex items-center justify-between gap-2">
         <h1 className="text-2xl font-bold tracking-tight">Tu hogar</h1>
-        <HouseholdChip />
+        <div className="flex items-center gap-2">
+          <ThemeToggle />
+          <HouseholdChip />
+        </div>
       </div>
 
       <Card className="mb-4 flex flex-col items-center gap-4 text-center sm:flex-row sm:text-left">

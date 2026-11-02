@@ -11,8 +11,15 @@ export type KitCategory =
   | "mascotas"
   | "otro";
 
+export interface Kit {
+  id: string; // "main" = la mochila de casa (cuenta para la nota)
+  name: string;
+  icon: string;
+}
+
 export interface KitItem {
   id: string;
+  kitId: string; // a qué mochila pertenece
   catalogId?: string;
   icon?: string; // icono Phosphor
   name: string;

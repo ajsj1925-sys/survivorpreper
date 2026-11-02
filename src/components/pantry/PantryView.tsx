@@ -3,7 +3,7 @@
 import { Lock, Plus, ScanLine, X } from "lucide-react";
 import { useMemo, useState } from "react";
 import { daysUntil, expiryLevel, fmtNumber, formatDays, homeSummary, lifePct, parseISODate } from "@/lib/calc";
-import { useHydrated, useStore, useUI } from "@/lib/store";
+import { mainKitItems, useHydrated, useStore, useUI } from "@/lib/store";
 import type { PantryLot, PantryType } from "@/lib/types";
 import { Card, cn } from "@/components/ui";
 import { Icon, IconTile } from "@/components/icons/Icon";
@@ -36,7 +36,7 @@ export function PantryView() {
       .sort((a, b) => parseISODate(a.expiresAt).getTime() - parseISODate(b.expiresAt).getTime()),
     [pantry, filter],
   );
-  const home = homeSummary(kit, pantry, household);
+  const home = homeSummary(mainKitItems(kit), pantry, household);
 
   if (!hydrated) return <div className="h-96 animate-pulse rounded-3xl bg-stone-200/60" />;
 

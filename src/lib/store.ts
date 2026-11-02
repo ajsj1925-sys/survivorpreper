@@ -6,7 +6,11 @@ import { useEffect, useState } from "react";
 import { DEFAULTS } from "./config";
 import { CATALOG_BY_ID, type CatalogItem } from "./catalog";
 import { addDays, parseISODate, toISODate, today } from "./calc";
-import type { FamilyMember, FamilyPlan, Household, KitItem, PantryLot } from "./types";
+import type { FamilyMember, FamilyPlan, Household, Kit, KitItem, PantryLot } from "./types";
+
+export const MAIN_KIT = "main";
+export const FREE_KITS = 2; // más mochilas = Pro
+export type Theme = "system" | "light" | "dark";
 
 export function uid() {
   if (typeof crypto !== "undefined" && "randomUUID" in crypto) return crypto.randomUUID();
@@ -27,6 +31,7 @@ const emptyPlan: FamilyPlan = {
 
 export interface BackupData {
   household: Household;
+  kits?: Kit[];
   kit: KitItem[];
   pantry: PantryLot[];
   plan: FamilyPlan;
@@ -35,6 +40,10 @@ export interface BackupData {
 
 interface AppState {
   household: Household;
+  kits: Kit[];
+  activeKitId: string;
+  theme: Theme;
+  lastReminder: string | null; // fecha del último aviso de caducidad mostrado
   kit: KitItem[];
   checkedEssentials: string[];
   pantry: PantryLot[];
@@ -45,7 +54,12 @@ interface AppState {
   setHousehold: (patch: Partial<Household>) => void;
   completeOnboarding: (patch: Partial<Household>) => void;
 
-  addKitItem: (item: Omit<KitItem, "id">) => void;
+  addKit: (name: string, icon: string) => string;
+  removeKit: (id: string) => void;
+  setActiveKit: (id: string) => void;
+  setTheme: (t: Theme) => void;
+  markReminded: (isoDate: string) => void;
+  addKitItem: (item: Omit<KitItem, "id" | "kitId">) => void;
   updateKitItem: (id: string, patch: Partial<KitItem>) => void;
   removeKitItem: (id: string) => void;
   toggleEssential: (id: string) => void;
@@ -79,6 +93,10 @@ const initial = {
     waterPerPetL: 1,
     onboarded: false,
   },
+  kits: [{ id: MAIN_KIT, name: "Casa", icon: "house" }] as Kit[],
+  activeKitId: MAIN_KIT,
+  theme: "system" as Theme,
+  lastReminder: null as string | null,
   kit: [] as KitItem[],
   checkedEssentials: [] as string[],
   pantry: [] as PantryLot[],
@@ -95,7 +113,22 @@ export const useStore = create<AppState>()(
       setHousehold: (patch) => set((s) => ({ household: { ...s.household, ...patch } })),
       completeOnboarding: (patch) => set((s) => ({ household: { ...s.household, ...patch, onboarded: true } })),
 
-      addKitItem: (item) => set((s) => ({ kit: [...s.kit, { ...item, id: uid() }] })),
+      addKit: (name, icon) => {
+        const id = uid();
+        set((s) => ({ kits: [...s.kits, { id, name, icon }], activeKitId: id }));
+        return id;
+      },
+      removeKit: (id) =>
+        set((s) =>
+          id === MAIN_KIT
+            ? {}
+            : { kits: s.kits.filter((k) => k.id !== id), kit: s.kit.filter((i) => i.kitId !== id), activeKitId: MAIN_KIT },
+        ),
+      setActiveKit: (id) => set({ activeKitId: id }),
+      setTheme: (theme) => set({ theme }),
+      markReminded: (lastReminder) => set({ lastReminder }),
+
+      addKitItem: (item) => set((s) => ({ kit: [...s.kit, { ...item, id: uid(), kitId: s.activeKitId }] })),
       updateKitItem: (id, patch) =>
         set((s) => ({ kit: s.kit.map((i) => (i.id === id ? { ...i, ...patch } : i)) })),
       removeKitItem: (id) => set((s) => ({ kit: s.kit.filter((i) => i.id !== id) })),
@@ -108,22 +141,23 @@ export const useStore = create<AppState>()(
 
       addFromCatalog: (c, n = 1) =>
         set((s) => {
-          const ex = s.kit.find((i) => i.catalogId === c.id);
+          const ex = s.kit.find((i) => i.catalogId === c.id && i.kitId === s.activeKitId);
           if (ex) return { kit: s.kit.map((i) => (i === ex ? { ...i, qty: i.qty + n } : i)) };
-          return { kit: [...s.kit, kitFromCatalog(c, n)] };
+          return { kit: [...s.kit, kitFromCatalog(c, n, s.activeKitId)] };
         }),
       decFromCatalog: (catalogId) =>
         set((s) => ({
           kit: s.kit
-            .map((i) => (i.catalogId === catalogId ? { ...i, qty: i.qty - 1 } : i))
+            .map((i) => (i.catalogId === catalogId && i.kitId === s.activeKitId ? { ...i, qty: i.qty - 1 } : i))
             .filter((i) => i.qty > 0),
         })),
       setCatalogQty: (c, qty) =>
         set((s) => {
-          const ex = s.kit.find((i) => i.catalogId === c.id);
-          if (qty <= 0) return { kit: s.kit.filter((i) => i.catalogId !== c.id) };
+          const mine = (i: KitItem) => i.catalogId === c.id && i.kitId === s.activeKitId;
+          const ex = s.kit.find(mine);
+          if (qty <= 0) return { kit: s.kit.filter((i) => !mine(i)) };
           if (ex) return { kit: s.kit.map((i) => (i === ex ? { ...i, qty } : i)) };
-          return { kit: [...s.kit, kitFromCatalog(c, qty)] };
+          return { kit: [...s.kit, kitFromCatalog(c, qty, s.activeKitId)] };
         }),
 
       addPantryLot: (lot) =>
@@ -170,7 +204,9 @@ export const useStore = create<AppState>()(
       importData: (d) =>
         set({
           household: { ...initial.household, ...d.household, onboarded: true },
-          kit: d.kit ?? [],
+          kits: d.kits?.length ? d.kits : initial.kits,
+          activeKitId: MAIN_KIT,
+          kit: (d.kit ?? []).map((i) => ({ ...i, kitId: i.kitId ?? MAIN_KIT })),
           pantry: d.pantry ?? [],
           plan: { ...emptyPlan, ...d.plan },
           checkedEssentials: d.checkedEssentials ?? [],
@@ -179,7 +215,7 @@ export const useStore = create<AppState>()(
     }),
     {
       name: "survivoros-v1",
-      version: 3,
+      version: 4,
       migrate: (persisted, version) => {
         const p = persisted as Partial<AppState>;
         if (version < 2) {
@@ -192,6 +228,12 @@ export const useStore = create<AppState>()(
           p.kit = (p.kit ?? []).map(({ emoji: _e, ...i }: KitItem & { emoji?: string }) => ({ ...i, icon: iconOf(i.catalogId) }));
           p.pantry = (p.pantry ?? []).map(({ emoji: _e, ...l }: PantryLot & { emoji?: string }) => ({ ...l, icon: iconOf(l.catalogId) }));
         }
+        if (version < 4) {
+          // v4: varias mochilas; todo lo anterior va a "Casa"
+          p.kits = initial.kits;
+          p.activeKitId = MAIN_KIT;
+          p.kit = (p.kit ?? []).map((i) => ({ ...i, kitId: i.kitId ?? MAIN_KIT }));
+        }
         return p as AppState;
       },
       storage: createJSONStorage(() => localStorage),
@@ -201,9 +243,10 @@ export const useStore = create<AppState>()(
   ),
 );
 
-export function kitFromCatalog(c: CatalogItem, qty: number): KitItem {
+export function kitFromCatalog(c: CatalogItem, qty: number, kitId: string = MAIN_KIT): KitItem {
   return {
     id: uid(),
+    kitId,
     catalogId: c.id,
     icon: c.icon,
     name: c.name,
@@ -228,6 +271,9 @@ export const useUI = create<UIState>()((set) => ({
   openPaywall: (feature) => set({ paywallFeature: feature }),
   closePaywall: () => set({ paywallFeature: null }),
 }));
+
+/** Lo que hay en la mochila de casa: es la que cuenta para la nota, Inicio y la compra. */
+export const mainKitItems = (kit: KitItem[]) => kit.filter((i) => (i.kitId ?? MAIN_KIT) === MAIN_KIT);
 
 /** Evita desajustes de hidratación: el servidor no conoce el localStorage. */
 export function useHydrated() {

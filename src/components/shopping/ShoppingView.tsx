@@ -4,7 +4,7 @@ import { Check } from "lucide-react";
 import Link from "next/link";
 import { amazonSearchUrl } from "@/lib/config";
 import { shoppingList } from "@/lib/shopping";
-import { useHydrated, useStore } from "@/lib/store";
+import { MAIN_KIT, mainKitItems, useHydrated, useStore } from "@/lib/store";
 import { Card, cn } from "@/components/ui";
 import { Icon, IconTile } from "@/components/icons/Icon";
 import { CAT_META } from "@/lib/catalog";
@@ -17,9 +17,9 @@ const REASON = {
 
 export function ShoppingView() {
   const hydrated = useHydrated();
-  const { household, kit, pantry, addFromCatalog, restockLot } = useStore();
+  const { household, kit, pantry, addFromCatalog, restockLot, setActiveKit } = useStore();
   if (!hydrated) return <div className="h-96 animate-pulse rounded-3xl bg-stone-200/60" />;
-  const lines = shoppingList(household, kit, pantry);
+  const lines = shoppingList(household, mainKitItems(kit), pantry);
 
   async function copy() {
     const txt = lines.map((l) => `☐ ${l.name} ×${l.qty}`).join("\n");
@@ -56,7 +56,11 @@ export function ShoppingView() {
                 className="rounded-full bg-stone-100 px-3 py-2 text-xs font-medium hover:bg-stone-200">Comprar ↗</a>
               <button
                 aria-label={`Ya lo tengo: ${l.name}`}
-                onClick={() => (l.lotId ? restockLot(l.lotId) : l.catalog && addFromCatalog(l.catalog, l.qty))}
+                onClick={() => {
+                  if (l.lotId) return restockLot(l.lotId);
+                  setActiveKit(MAIN_KIT); // lo que falta es de la mochila de casa
+                  if (l.catalog) addFromCatalog(l.catalog, l.qty);
+                }}
                 className="flex h-10 w-10 items-center justify-center rounded-full bg-emerald-500 text-white shadow-sm active:scale-95">
                 <Check className="h-5 w-5" />
               </button>

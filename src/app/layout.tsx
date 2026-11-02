@@ -7,6 +7,7 @@ const font = Plus_Jakarta_Sans({ subsets: ["latin"], variable: "--font-jakarta",
 import { BRAND, SITE_URL } from "@/lib/config";
 import { PaywallModal } from "@/components/Paywall";
 import { SWRegister } from "@/components/SWRegister";
+import { ThemeSync, themeInitScript } from "@/components/Theme";
 import Script from "next/script";
 
 export const metadata: Metadata = {
@@ -20,7 +21,6 @@ export const metadata: Metadata = {
   applicationName: BRAND.name,
   openGraph: { type: "website", locale: "es_ES", siteName: BRAND.name },
   appleWebApp: { capable: true, title: BRAND.name, statusBarStyle: "default" },
-  icons: { icon: "/icons/icon-192.png", apple: "/icons/icon-192.png" },
 };
 
 export const viewport: Viewport = {
@@ -32,11 +32,15 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="es" className={font.variable}>
+    <html lang="es" className={font.variable} suppressHydrationWarning>
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
+      </head>
       <body>
         {children}
         <PaywallModal />
         <SWRegister />
+        <ThemeSync />
         {process.env.NEXT_PUBLIC_UMAMI_WEBSITE_ID && (
           // Estadísticas sin cookies (Umami Cloud, plan gratuito)
           <Script defer src="https://cloud.umami.is/script.js" data-website-id={process.env.NEXT_PUBLIC_UMAMI_WEBSITE_ID} strategy="afterInteractive" />

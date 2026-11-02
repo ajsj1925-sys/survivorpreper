@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { fmtNumber, homeSummary } from "@/lib/calc";
-import { useHydrated, useStore } from "@/lib/store";
+import { mainKitItems, useHydrated, useStore } from "@/lib/store";
 import { cn } from "@/components/ui";
 import { Icon } from "@/components/icons/Icon";
 
@@ -22,10 +22,10 @@ export function BlackoutView() {
   const hydrated = useHydrated();
   const { kit, pantry, household, plan } = useStore();
   const [done, setDone] = useState<number[]>([]);
-  const home = hydrated ? homeSummary(kit, pantry, household) : null;
+  const home = hydrated ? homeSummary(mainKitItems(kit), pantry, household) : null;
 
   return (
-    <div className="-mx-4 -mt-6 min-h-dvh bg-stone-900 px-4 pb-10 pt-6 text-white md:-mx-8 md:-mt-8 md:rounded-3xl md:px-8">
+    <div className="always-dark -mx-4 -mt-6 min-h-dvh bg-stone-900 px-4 pb-10 pt-6 text-white md:-mx-8 md:-mt-8 md:rounded-3xl md:px-8">
       <div className="text-center">
         <span className="mx-auto flex h-20 w-20 items-center justify-center rounded-3xl bg-amber-400/15 text-amber-400"><Icon name="lightning" className="h-12 w-12" /></span>
         <h1 className="mt-2 text-3xl font-black">Modo apagón</h1>
