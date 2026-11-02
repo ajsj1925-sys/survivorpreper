@@ -19,6 +19,8 @@ export const metadata: Metadata = {
   description:
     "Prepara tu hogar para un apagón o una emergencia: calcula tu kit de 72 horas, controla la caducidad de tu despensa y crea un plan familiar imprimible. Gratis y sin registro.",
   applicationName: BRAND.name,
+  // Verificación de Google Search Console (no es secreto: es público en el HTML)
+  verification: { google: "vbrAwKMVklF_QejCw65Leq41R8Sj7lLZD-0mVZOBqDI" },
   openGraph: { type: "website", locale: "es_ES", siteName: BRAND.name },
   appleWebApp: { capable: true, title: BRAND.name, statusBarStyle: "default" },
 };
