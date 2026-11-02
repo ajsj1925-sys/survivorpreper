@@ -31,6 +31,9 @@ export const LEGAL = {
   updated: "2 de noviembre de 2026",
 };
 
+// Estadísticas sin cookies (Umami Cloud). El ID no es secreto: va en el HTML de la web.
+export const UMAMI_WEBSITE_ID = process.env.NEXT_PUBLIC_UMAMI_WEBSITE_ID || "8b2193b4-5023-4c41-9142-44279bc5b79a";
+
 export const AMAZON_TAG = process.env.NEXT_PUBLIC_AMAZON_TAG ?? "";
 
 export function amazonSearchUrl(query: string) {

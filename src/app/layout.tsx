@@ -4,7 +4,7 @@ import { Plus_Jakarta_Sans } from "next/font/google";
 
 // Tipografía de la app (se descarga al compilar y se sirve desde nuestro dominio: sin peticiones a Google)
 const font = Plus_Jakarta_Sans({ subsets: ["latin"], variable: "--font-jakarta", display: "swap" });
-import { BRAND, SITE_URL } from "@/lib/config";
+import { BRAND, SITE_URL, UMAMI_WEBSITE_ID } from "@/lib/config";
 import { PaywallModal } from "@/components/Paywall";
 import { SWRegister } from "@/components/SWRegister";
 import { ThemeSync, themeInitScript } from "@/components/Theme";
@@ -43,9 +43,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <PaywallModal />
         <SWRegister />
         <ThemeSync />
-        {process.env.NEXT_PUBLIC_UMAMI_WEBSITE_ID && (
+        {UMAMI_WEBSITE_ID && (
           // Estadísticas sin cookies (Umami Cloud, plan gratuito)
-          <Script defer src="https://cloud.umami.is/script.js" data-website-id={process.env.NEXT_PUBLIC_UMAMI_WEBSITE_ID} strategy="afterInteractive" />
+          <Script defer src="https://cloud.umami.is/script.js" data-website-id={UMAMI_WEBSITE_ID} strategy="afterInteractive" />
         )}
       </body>
     </html>
