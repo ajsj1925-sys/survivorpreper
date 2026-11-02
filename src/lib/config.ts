@@ -6,7 +6,7 @@ export const BRAND = {
   footer: "Hecho con SurvivorOS",
 };
 
-export const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://survivoros.netlify.app";
+export const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://survivorpreper.netlify.app";
 
 export const PRO = {
   price: "9€",
