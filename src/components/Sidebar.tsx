@@ -49,7 +49,7 @@ export function Sidebar() {
             Modo apagón
           </Link>
           <Link
-            href="/guias/kit-emergencia-72-horas"
+            href="/guias"
             className="mt-4 flex items-center gap-3 rounded-lg px-3 py-2 text-sm text-stone-500 hover:bg-stone-100"
           >
             <BookOpen className="h-4 w-4" />

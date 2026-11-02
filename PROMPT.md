@@ -33,8 +33,15 @@ Atraer tráfico orgánico y convertirlo en ingresos recurrentes:
 - **Lista de la compra automática** (lo que falta + lo que caduca) con afiliados y "Ya lo tengo".
 - **Modo apagón**: 9 pasos grandes con iconos, 112 a un toque, días de comida/agua y vuestro punto de encuentro. Funciona sin conexión.
 
+## Fase 1.6 (hecha) · Pulido y contenido
+- Iconos Phosphor duotono (MIT) en baldosas de color por categoría; fuente Plus Jakarta Sans; logo propio (escudo con casa).
+- Modo oscuro (automático/claro/oscuro), animaciones, recordatorios de caducidad (aviso al abrir + notificación con la app cerrada en Android), varias mochilas (2 gratis).
+- Legal (aviso legal, privacidad, consentimiento RGPD), Pro como lista de espera, estadísticas Umami sin cookies, copia de seguridad, compartir nota con tarjeta visual.
+- Despliegue: GitHub (ajsj1925-sys/survivorpreper) + Netlify; cada push a main se publica.
+- 8 guías SEO en /guias con fuentes oficiales: kit 72 h, agua, apagón, coche (V16), bebés, mascotas, botiquín, comida (con calculadora).
+
 ## Fase 2 (siguiente)
 - Login sin contraseña (enlace mágico) con Supabase y webhook de Stripe para marcar `isPro` en el servidor.
 - Avisos de caducidad por email (cron diario de Vercel y Brevo).
 - Sincronización del estado local con Supabase solo para usuarios Pro.
-- Más páginas SEO: kit para el coche, kit con mascotas, kit para bebés, qué hacer en un apagón, botiquín básico.
+- Más páginas SEO: una por comunidad autónoma con sus riesgos (inundaciones, incendios, nevadas) y teléfonos.

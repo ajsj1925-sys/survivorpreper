@@ -10,8 +10,8 @@ export function PublicHeader() {
           <Logo />
         </Link>
         <nav className="flex items-center gap-4 text-sm">
-          <Link href="/guias/kit-emergencia-72-horas" className="hidden text-stone-600 hover:text-stone-900 sm:inline">
-            Guía kit 72 h
+          <Link href="/guias" className="text-stone-600 hover:text-stone-900">
+            Guías
           </Link>
           <Link href="/app" className="rounded-lg bg-brand-500 px-3 py-1.5 font-medium text-white hover:bg-brand-600">
             Abrir app
@@ -28,8 +28,8 @@ export function PublicFooter() {
       <div className="mx-auto flex max-w-5xl flex-col gap-3 px-4 sm:flex-row sm:justify-between">
         <span>© {new Date().getFullYear()} {BRAND.name}. Información orientativa: sigue siempre las indicaciones de Protección Civil y del 112.</span>
         <div className="flex flex-wrap gap-4">
-          <Link href="/guias/kit-emergencia-72-horas" className="hover:text-stone-800">Kit 72 h</Link>
-          <Link href="/guias/cuanta-agua-almacenar" className="hover:text-stone-800">Agua</Link>
+          <Link href="/guias" className="hover:text-stone-800">Guías</Link>
+          <Link href="/guias/que-hacer-en-un-apagon" className="hover:text-stone-800">Apagón</Link>
           <Link href="/aviso-legal" className="hover:text-stone-800">Aviso legal</Link>
           <Link href="/privacidad" className="hover:text-stone-800">Privacidad</Link>
         </div>
