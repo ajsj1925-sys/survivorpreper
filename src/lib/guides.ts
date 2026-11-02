@@ -367,6 +367,353 @@ export const GUIDES: Guide[] = [
       { label: "Selectra: kit de emergencia 2026 para 72 horas", url: "https://selectra.es/alarmas/noticias/kit-emergencia-2026-casa-72-horas" },
     ],
   },
+  {
+    slug: "que-hacer-inundacion-dana",
+    icon: "waves",
+    title: "Qué hacer en una DANA o inundación: antes, durante y después",
+    metaTitle: "Qué hacer en una DANA o inundación: guía práctica",
+    description:
+      "Cómo prepararte para una DANA o lluvias torrenciales, qué hacer si el agua entra en casa o te sorprende en el coche, cuándo evacuar y qué hacer al volver.",
+    intro:
+      "Las lluvias torrenciales pueden convertir en minutos una calle, un garaje o un barranco en una trampa. Casi todas las víctimas de una inundación están en coches, sótanos o plantas bajas. Saber qué hacer, y qué no hacer, salva vidas.",
+    sections: [
+      {
+        h: "Antes: cuando hay aviso naranja o rojo",
+        items: [
+          "Sigue los avisos de la AEMET y de Protección Civil de tu comunidad. Si recibes un ES-Alert en el móvil, haz caso a lo que diga.",
+          "Prepara la mochila de emergencia: documentación, medicinas, linterna, radio a pilas, powerbank, agua y algo de comida.",
+          "Sube a pisos altos los objetos de valor, los papeles importantes y los productos químicos.",
+          "Si tienes el coche en un garaje subterráneo o en una zona baja, muévelo antes de que empiece a llover fuerte, nunca durante.",
+          "Despeja sumideros, canalones y bajantes.",
+          "Acordad en familia un punto de encuentro en un lugar alto y un contacto fuera de la zona.",
+          "Mira si en tu zona hay barrancos, ramblas o cauces secos: con lluvias fuertes pueden llenarse en minutos.",
+        ],
+      },
+      {
+        h: "Durante: lo que salva vidas",
+        items: [
+          "No bajes a garajes, sótanos ni plantas bajas a rescatar el coche ni nada.",
+          "Sube a pisos altos. Si vives en un bajo, pide refugio a un vecino de arriba antes de que el agua suba.",
+          "No cruces nunca calles, vados ni puentes con agua corriendo, ni a pie ni en coche. 30 cm de agua en movimiento pueden arrastrar un coche.",
+          "Si el agua entra en casa, corta la luz y el gas si puedes hacerlo sin tocar el agua.",
+          "Si te sorprende en el coche y el agua sube, sal y busca un punto alto. El coche se puede reemplazar.",
+          "Llama al 112 si estás en peligro. No uses la línea para preguntar por el tiempo.",
+        ],
+      },
+      {
+        h: "Si te ordenan evacuar",
+        items: [
+          "Hazlo enseguida y por las rutas que indiquen las autoridades.",
+          "Coge solo la mochila de emergencia. Cierra la casa y corta luz, gas y agua.",
+          "Lleva a tus mascotas contigo si puedes. Si no puedes, nunca las dejes atadas ni encerradas.",
+          "Avisa a tu contacto de fuera de la zona de dónde vas.",
+        ],
+      },
+      {
+        h: "Después: al volver a casa",
+        items: [
+          "No vuelvas hasta que lo autoricen. Puede haber daños en la estructura.",
+          "No conectes la luz hasta que un técnico revise la instalación si el agua llegó a los enchufes.",
+          "No bebas agua del grifo hasta que confirmen que es potable. Usa la embotellada de tu kit.",
+          "Tira los alimentos que hayan tocado el agua de la inundación, aunque estén envasados (salvo latas en perfecto estado y bien lavadas).",
+          "Usa guantes y botas al limpiar: el barro puede llevar aguas residuales.",
+          "Haz fotos de los daños antes de limpiar, para el seguro.",
+        ],
+      },
+    ],
+    cta: { href: "/app/plan", label: "Crear vuestro plan familiar con punto de encuentro" },
+    faq: [
+      {
+        q: "¿Qué es una DANA?",
+        a: "Es una Depresión Aislada en Niveles Altos: una bolsa de aire frío en altura que, sobre todo en otoño y en el Mediterráneo, puede provocar lluvias muy intensas en poco tiempo.",
+      },
+      {
+        q: "¿Es seguro quedarse en el coche durante una inundación?",
+        a: "No. El coche flota y puede ser arrastrado con poca agua. Si el agua sube alrededor, sal y busca un lugar alto.",
+      },
+      {
+        q: "¿Qué debo llevar si tengo que evacuar?",
+        a: "Documentación, medicinas, móvil y powerbank, linterna, radio a pilas, agua, algo de comida, dinero en efectivo y ropa de abrigo. Mejor tenerlo preparado en una mochila.",
+      },
+    ],
+    sources: [
+      { label: "Protección Civil (Xunta de Galicia): medidas de autoprotección ante inundaciones", url: "https://ficheiros-web.xunta.gal/emerxencias/recomendacions/recomendacions-poboacion-inundacions.pdf" },
+      { label: "Dirección General de Protección Civil y Emergencias", url: "https://www.proteccioncivil.es" },
+      { label: "AEMET: avisos meteorológicos", url: "https://www.aemet.es" },
+    ],
+  },
+  {
+    slug: "que-hacer-incendio-forestal",
+    icon: "fire",
+    title: "Qué hacer si un incendio forestal se acerca a tu casa",
+    metaTitle: "Incendio forestal cerca de casa: confinarse o evacuar",
+    description:
+      "Cómo preparar tu casa si vives cerca del monte, qué hacer si te ordenan confinarte o evacuar por un incendio forestal y qué llevar en la mochila.",
+    intro:
+      "Si vives en una urbanización o un pueblo rodeado de monte, un incendio puede obligarte a confinarte en casa o a salir en poco tiempo. Las autoridades deciden una cosa u otra según cómo avanza el fuego: lo más importante es estar preparado y hacer caso a sus indicaciones.",
+    sections: [
+      {
+        h: "Antes del verano: prepara tu casa",
+        items: [
+          "Limpia de matorral, hojas y ramas secas el entorno de la vivienda, los tejados y los canalones.",
+          "Guarda la leña y los materiales que ardan lejos de la casa (a más de 10 metros).",
+          "Evita setos muy inflamables, como cipreses, pegados a la casa.",
+          "Ten una manguera que llegue a todo el perímetro.",
+          "Pregunta en tu ayuntamiento si tu urbanización tiene plan de autoprotección y cuál es el punto de encuentro.",
+          "Prepara la mochila de emergencia y déjala a mano durante el verano.",
+        ],
+      },
+      {
+        h: "Si ves fuego o humo",
+        items: [
+          "Llama al 112 y di dónde estás y qué ves.",
+          "No te acerques a mirar ni intentes apagar un fuego que no sea muy pequeño.",
+          "Aléjate en sentido contrario al viento y nunca por barrancos ni zonas altas del monte.",
+        ],
+      },
+      {
+        h: "Si te ordenan confinarte en casa",
+        items: [
+          "Quédate dentro. Es más seguro que salir a la carretera con el fuego cerca.",
+          "Cierra puertas, ventanas y persianas, y tapa las rendijas con toallas mojadas.",
+          "Llena bañeras y cubos de agua y moja el perímetro y el tejado si puedes hacerlo sin riesgo.",
+          "Deja encendidas las luces exteriores para que te localicen.",
+          "Viste ropa de algodón que cubra todo el cuerpo y calzado cerrado.",
+          "Ten el coche aparcado mirando hacia la salida, con las ventanillas cerradas y las llaves a mano.",
+          "Sigue la radio y los mensajes oficiales.",
+        ],
+      },
+      {
+        h: "Si te ordenan evacuar",
+        items: [
+          "Hazlo sin dudar y solo por las rutas que indiquen las autoridades. Nunca atajes por tu cuenta.",
+          "Coge la mochila: documentación, medicinas, dinero en efectivo, móvil y cargador.",
+          "Corta la luz y el gas, y cierra puertas y ventanas.",
+          "Deja abierta la puerta de la parcela o del jardín para que entren los equipos de emergencia.",
+          "Lleva a tus animales. Si no puedes, no los dejes atados ni encerrados.",
+          "No vuelvas hasta que las autoridades lo permitan.",
+        ],
+      },
+      {
+        h: "El humo también afecta aunque estés lejos",
+        p: "Con humo en el ambiente, quédate en interiores con ventanas cerradas y protege especialmente a mayores, niños, embarazadas y personas con problemas respiratorios. Una mascarilla FFP2 ayuda si tienes que salir.",
+      },
+    ],
+    cta: { href: "/app/kit", label: "Preparar mi mochila de emergencia" },
+    faq: [
+      {
+        q: "¿Es mejor quedarse en casa o huir de un incendio forestal?",
+        a: "Depende de cómo avance el fuego, y eso lo deciden las autoridades. Salir por tu cuenta con el fuego cerca puede ser más peligroso que quedarte en una casa bien preparada. Haz caso a la orden que den: confinamiento o evacuación.",
+      },
+      {
+        q: "¿Qué hago con mi coche si me confinan?",
+        a: "Déjalo aparcado mirando hacia la salida, con ventanillas cerradas y las llaves a mano, por si después ordenan evacuar.",
+      },
+      {
+        q: "¿Sirve una mascarilla con el humo?",
+        a: "Una FFP2 bien ajustada filtra buena parte de las partículas del humo. Aun así, lo mejor es quedarse en interiores con las ventanas cerradas.",
+      },
+    ],
+    sources: [
+      { label: "Protección Civil Málaga: medidas ante incendios forestales", url: "https://proteccioncivil.malaga.eu/export/sites/proteccioncivil/.galleries/Medidas-Autproteccion/TRIPTICO-INCENDIOS-FORESTALES.pdf" },
+      { label: "Dirección General de Protección Civil y Emergencias", url: "https://www.proteccioncivil.es" },
+    ],
+  },
+  {
+    slug: "ola-de-calor-golpe-de-calor",
+    icon: "thermometer-hot",
+    title: "Ola de calor: cómo proteger a tu familia y reconocer un golpe de calor",
+    metaTitle: "Ola de calor: consejos y síntomas del golpe de calor",
+    description:
+      "Qué hacer en una ola de calor para mantener la casa fresca, cuánta agua beber, quién tiene más riesgo y cómo reconocer y actuar ante un golpe de calor.",
+    intro:
+      "El calor extremo es uno de los riesgos que más afectan a la salud en España, sobre todo a mayores, bebés y personas con enfermedades crónicas. Y si coincide con un apagón, la casa se calienta todavía más. Unas pocas medidas marcan la diferencia.",
+    sections: [
+      {
+        h: "En casa: mantenerla fresca",
+        items: [
+          "Cierra persianas y ventanas en las horas de sol y ventila de noche y a primera hora.",
+          "Busca la habitación más fresca de la casa y pasad allí las horas de más calor.",
+          "Ten agua fresca siempre a mano y algún ventilador a pilas o USB por si se va la luz.",
+          "Evita cocinar con horno en las horas centrales.",
+        ],
+      },
+      {
+        h: "Cuidarte: lo que recomienda Sanidad",
+        items: [
+          "Bebe agua con frecuencia aunque no tengas sed.",
+          "Evita el alcohol, las bebidas con mucha cafeína y las muy azucaradas.",
+          "Come ligero: fruta, verdura, ensaladas.",
+          "No hagas ejercicio ni esfuerzos al aire libre en las horas centrales del día.",
+          "Ropa ligera y de colores claros; gorra y gafas de sol si sales.",
+          "Nunca dejes a nadie, ni a niños ni a mascotas, dentro de un coche cerrado.",
+          "Llama o visita a los mayores que vivan solos.",
+        ],
+      },
+      {
+        h: "Golpe de calor: cómo reconocerlo",
+        p: "Es una urgencia. Señales de alarma: piel muy caliente y enrojecida, temperatura de 40 °C o más, pulso y respiración rápidos, confusión, mareo, alucinaciones o convulsiones. Si las ves, llama al 112 y, mientras llega la ayuda, lleva a la persona a un sitio fresco, quítale ropa y enfríala con paños mojados. Si está consciente, dale agua a sorbos.",
+      },
+      {
+        h: "Quién tiene más riesgo",
+        items: [
+          "Mayores de 65 años, sobre todo si viven solos.",
+          "Bebés y niños pequeños.",
+          "Embarazadas.",
+          "Personas con enfermedades crónicas o que toman ciertos medicamentos: pregunta a tu médico o farmacéutico.",
+          "Quien trabaja o hace deporte al aire libre.",
+        ],
+      },
+    ],
+    tool: "water",
+    cta: { href: "/guias/cuanta-agua-almacenar", label: "Calcular cuánta agua necesita tu familia" },
+    faq: [
+      {
+        q: "¿Cuánta agua hay que beber en una ola de calor?",
+        a: "No hay una cifra única: lo importante es beber a menudo aunque no tengas sed. Las personas mayores pueden no notar la sed, así que conviene ofrecerles agua con frecuencia.",
+      },
+      {
+        q: "¿Qué diferencia hay entre agotamiento por calor y golpe de calor?",
+        a: "El agotamiento da cansancio, sudor abundante, mareo y dolor de cabeza; mejora con descanso, sombra y agua. El golpe de calor es más grave: la temperatura sube a 40 °C o más y aparece confusión. Es una urgencia: llama al 112.",
+      },
+      {
+        q: "¿Qué hago si se va la luz durante una ola de calor?",
+        a: "Mantén la casa cerrada en las horas de sol, quedaos en la habitación más fresca, usa ventiladores a pilas y paños mojados, y bebe agua de tu reserva.",
+      },
+    ],
+    sources: [
+      { label: "Ministerio de Sanidad: recomendaciones frente a las temperaturas extremas", url: "https://www.sanidad.gob.es/ca/gabinete/notasPrensa.do?id=5430" },
+      { label: "AEMET: avisos por temperaturas máximas", url: "https://www.aemet.es" },
+    ],
+  },
+  {
+    slug: "nevadas-ola-de-frio",
+    icon: "snowflake",
+    title: "Nevadas y ola de frío: cómo preparar tu casa y tu coche",
+    metaTitle: "Nevadas y ola de frío: qué tener en casa y en el coche",
+    description:
+      "Qué tener en casa si una nevada te deja aislado varios días, cómo calentarte sin riesgo de intoxicación y qué llevar en el coche si te quedas atrapado.",
+    intro:
+      "Una gran nevada puede dejar calles y carreteras cortadas varios días y, a veces, sin luz. Tener reserva en casa y saber qué hacer en el coche evita la mayoría de los problemas.",
+    sections: [
+      {
+        h: "En casa: para aguantar varios días aislados",
+        items: [
+          "Reserva de comida y agua para al menos 3 días.",
+          "Medicamentos habituales suficientes, sobre todo si hay enfermos crónicos o mayores.",
+          "Mantas, ropa de abrigo y calzado adecuado.",
+          "Linternas, radio a pilas y pilas de repuesto.",
+          "Revisa antes del invierno tejados, canalones, bajantes y el cierre de puertas y ventanas.",
+          "Protege las tuberías expuestas para que no se congelen.",
+          "No tires a la calle la nieve de terrazas y balcones.",
+        ],
+      },
+      {
+        h: "Calefacción sin riesgos",
+        items: [
+          "Nunca uses barbacoas, braseros de carbón ni hornillos de gas para calentar la casa: el monóxido de carbono no huele y puede matar.",
+          "Si usas estufas de gas o de leña, ventila un poco cada cierto tiempo y no las dejes encendidas mientras duermes.",
+          "Revisa calderas y chimeneas antes del invierno.",
+        ],
+      },
+      {
+        h: "En el coche: mejor no salir",
+        items: [
+          "Con aviso de nevada, evita viajar si no es imprescindible y consulta el estado de las carreteras en la DGT.",
+          "Si tienes que salir, no vayas solo y lleva el depósito lleno, cadenas, móvil y cargador, ropa de abrigo, manta, linterna, agua y comida energética.",
+          "Si el temporal te atrapa lejos de un pueblo, quédate dentro del coche y llama al 112.",
+          "Si enciendes el motor para la calefacción, hazlo a ratos, abre un poco la ventanilla y mantén el tubo de escape libre de nieve para evitar intoxicaciones.",
+        ],
+      },
+      {
+        h: "Al salir a la calle",
+        items: [
+          "Sal lo menos posible, sobre todo los mayores.",
+          "Vístete por capas y protege cabeza, manos y cara.",
+          "Camina despacio, con pasos cortos y calzado que agarre: las caídas por hielo son muy frecuentes.",
+          "Los temblores fuertes son una señal para buscar refugio ya.",
+        ],
+      },
+    ],
+    cta: { href: "/guias/kit-emergencia-coche", label: "Ver qué llevar en el kit del coche" },
+    faq: [
+      {
+        q: "¿Qué hago si me quedo atrapado en el coche por la nieve?",
+        a: "Quédate dentro, llama al 112 y di dónde estás. Abrígate, enciende el motor solo a ratos con una ventanilla algo abierta y vigila que el tubo de escape no se tape con nieve.",
+      },
+      {
+        q: "¿Es peligroso calentarse con una barbacoa o un brasero dentro de casa?",
+        a: "Sí, mucho. Producen monóxido de carbono, un gas que no se ve ni huele y puede causar la muerte. No los uses nunca en espacios cerrados.",
+      },
+      {
+        q: "¿Cuánta comida tener en casa por si nieva?",
+        a: "Lo recomendable es tener para al menos 3 días (72 horas) para toda la familia, incluidas las mascotas, más los medicamentos habituales.",
+      },
+    ],
+    sources: [
+      { label: "Protección Civil Castilla-La Mancha: bajas temperaturas", url: "https://112.castillalamancha.es/proteccion-civil/consejos/bajas-temperaturas" },
+      { label: "DGT: estado de las carreteras", url: "https://www.dgt.es" },
+      { label: "AEMET: avisos por nieve y frío", url: "https://www.aemet.es" },
+    ],
+  },
+  {
+    slug: "alerta-es-alert-movil",
+    icon: "siren",
+    title: "ES-Alert: qué es el aviso que suena en el móvil y qué hacer al recibirlo",
+    metaTitle: "ES-Alert: qué es la alerta de Protección Civil en el móvil",
+    description:
+      "Qué es ES-Alert, por qué suena tu móvil aunque esté en silencio, qué móviles lo reciben y qué hacer cuando te llega un aviso de Protección Civil.",
+    intro:
+      "Si tu móvil ha sonado de golpe con un pitido muy fuerte y un mensaje de Protección Civil, era un ES-Alert: el sistema que usan las autoridades para avisar a todos los móviles de una zona cuando hay una emergencia grave.",
+    sections: [
+      {
+        h: "Qué es y cómo funciona",
+        items: [
+          "Funciona en toda España desde 2023. También se le llama «112 inverso».",
+          "El mensaje sale de las antenas a todos los móviles que están en la zona afectada. No usa tu número ni tus datos personales.",
+          "Suena aunque el móvil esté en silencio o en «No molestar».",
+          "Lo envían los servicios de emergencias de cada comunidad autónoma.",
+        ],
+      },
+      {
+        h: "Qué hacer cuando llega",
+        items: [
+          "Mira si el texto dice «PRUEBA». Si es una prueba, no tienes que hacer nada ni llamar al 112.",
+          "Si no es una prueba, léelo entero y sigue las instrucciones: confinarte, alejarte de una zona, no coger el coche…",
+          "Infórmate por canales oficiales: radio, televisión y redes de Protección Civil y del 112 de tu comunidad.",
+          "No llames al 112 para preguntar por el aviso. Llama solo si tienes una emergencia.",
+          "Avisa a familiares y vecinos que no tengan móvil o tengan uno antiguo.",
+        ],
+      },
+      {
+        h: "¿Mi móvil lo recibe?",
+        items: [
+          "Android 11 o superior y iPhone con iOS 15.6 o superior lo reciben correctamente.",
+          "Los Android 8 o anteriores no lo reciben.",
+          "No hace falta activar nada: las alertas de máximo nivel llegan siempre y no se pueden desactivar.",
+          "Un móvil apagado o sin cobertura no recibe nada. Por eso conviene tener también una radio a pilas.",
+        ],
+      },
+    ],
+    cta: { href: "/app/apagon", label: "Abrir el modo apagón (pasos y 112 a un toque)" },
+    faq: [
+      {
+        q: "¿Puedo desactivar las alertas ES-Alert?",
+        a: "Las de máxima gravedad, no: llegan siempre. En los ajustes solo aparece la opción de «Pre-alertas», que es un nivel inferior.",
+      },
+      {
+        q: "¿Por qué me ha llegado un aviso si el peligro está lejos?",
+        a: "El mensaje se envía a todas las antenas de una zona, y una antena puede cubrir varios kilómetros. Léelo igualmente y comprueba si afecta a tu municipio.",
+      },
+      {
+        q: "¿ES-Alert sustituye a las sirenas?",
+        a: "No. Es un sistema más que complementa a las sirenas y la megafonía. Por eso conviene tener también una radio a pilas.",
+      },
+    ],
+    sources: [
+      { label: "Dirección General de Protección Civil y Emergencias", url: "https://www.proteccioncivil.es" },
+    ],
+  },
 ];
 
 export const GUIDE_BY_SLUG: Record<string, Guide> = Object.fromEntries(GUIDES.map((g) => [g.slug, g]));

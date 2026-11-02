@@ -6,7 +6,7 @@ import { PublicFooter, PublicHeader } from "@/components/PublicShell";
 
 export const metadata: Metadata = {
   title: "Guías de preparación ante emergencias",
-  description: "Guías prácticas para preparar tu hogar: kit de 72 horas, agua, comida, apagones, coche, bebés, mascotas y botiquín.",
+  description: "Guías prácticas para preparar tu hogar: kit de 72 horas, agua, comida, apagones, DANA e inundaciones, incendios forestales, olas de calor y frío, coche, bebés, mascotas y botiquín.",
   alternates: { canonical: "/guias" },
 };
 
