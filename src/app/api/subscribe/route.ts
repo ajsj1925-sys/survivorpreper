@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { BREVO_LISTS } from "@/lib/config";
 
 // Única pieza de servidor de la Fase 1: reenvía el email a Brevo (servidor UE, plan gratuito).
 // Sin BREVO_API_KEY responde ok:false y el cliente lo guarda solo en local.
@@ -17,10 +18,14 @@ export async function POST(req: Request) {
 
   if (body.consent !== true) return NextResponse.json({ ok: false, error: "consent" }, { status: 400 });
 
+  // La clave SOLO vive en las variables de Netlify (nunca en el código: el repositorio es público)
   const key = process.env.BREVO_API_KEY;
-  // La lista de espera de Pro puede ir a otra lista para medirla aparte
-  const waitlist = body.source === "pro-waitlist" && process.env.BREVO_WAITLIST_LIST_ID;
-  const listId = Number(waitlist ? process.env.BREVO_WAITLIST_LIST_ID : process.env.BREVO_LIST_ID);
+  // Listas de Brevo (los números no son secretos): Recordatorios y Lista de espera Pro
+  const listId = Number(
+    body.source === "pro-waitlist"
+      ? process.env.BREVO_WAITLIST_LIST_ID || BREVO_LISTS.waitlist
+      : process.env.BREVO_LIST_ID || BREVO_LISTS.reminders,
+  );
   if (!key || !listId) return NextResponse.json({ ok: false, error: "not-configured" });
 
   const res = await fetch("https://api.brevo.com/v3/contacts", {

@@ -34,6 +34,9 @@ export const LEGAL = {
 // Estadísticas sin cookies (Umami Cloud). El ID no es secreto: va en el HTML de la web.
 export const UMAMI_WEBSITE_ID = process.env.NEXT_PUBLIC_UMAMI_WEBSITE_ID || "8b2193b4-5023-4c41-9142-44279bc5b79a";
 
+// Números de lista en Brevo (Contactos → Listas → columna ID)
+export const BREVO_LISTS = { reminders: 4, waitlist: 3 };
+
 export const AMAZON_TAG = process.env.NEXT_PUBLIC_AMAZON_TAG ?? "";
 
 export function amazonSearchUrl(query: string) {
