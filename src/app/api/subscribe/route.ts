@@ -15,6 +15,18 @@ function listIdFor(source?: string) {
   );
 }
 
+/** Pistas sobre la clave SIN mostrarla: prefijo, longitud y espacios. */
+function keyFormat(key: string) {
+  const hints: string[] = [];
+  if (key !== key.trim()) hints.push("tiene espacios o saltos de línea al principio o al final");
+  if (/^["']|["']$/.test(key.trim())) hints.push("lleva comillas: quítalas");
+  const k = key.trim();
+  if (k.startsWith("xsmtpsib-")) hints.push("es una clave SMTP, no una clave API: genera una en la pestaña Claves API");
+  else if (!k.startsWith("xkeysib-")) hints.push("no empieza por xkeysib- (las claves API de Brevo empiezan así)");
+  hints.push(`longitud ${k.length} caracteres (una clave completa suele tener unos 89)`);
+  return hints.join("; ");
+}
+
 /** Traduce el error de Brevo a algo que se entienda. */
 function explain(status: number, message: string) {
   if (status === 401) {
@@ -47,13 +59,20 @@ export async function GET() {
       problema: "Netlify no tiene la variable BREVO_API_KEY (o la web no se ha vuelto a publicar desde que la añadiste).",
     });
   }
-  const account = await fetch(`${BREVO}/account`, { headers: { "api-key": key, accept: "application/json" }, cache: "no-store" });
+  const account = await fetch(`${BREVO}/account`, { headers: { "api-key": key.trim(), accept: "application/json" }, cache: "no-store" });
   if (!account.ok) {
-    return NextResponse.json({ ok: false, paso: "clave", problema: explain(account.status, await brevoMessage(account)) });
+    const raw = await brevoMessage(account);
+    return NextResponse.json({
+      ok: false,
+      paso: "clave",
+      problema: explain(account.status, raw),
+      respuestaDeBrevo: raw || `(código ${account.status})`,
+      formatoDeLaClave: keyFormat(key),
+    });
   }
   const lists: Record<string, string> = {};
   for (const [name, id] of Object.entries({ recordatorios: listIdFor(), listaDeEspera: listIdFor("pro-waitlist") })) {
-    const r = await fetch(`${BREVO}/contacts/lists/${id}`, { headers: { "api-key": key, accept: "application/json" }, cache: "no-store" });
+    const r = await fetch(`${BREVO}/contacts/lists/${id}`, { headers: { "api-key": key.trim(), accept: "application/json" }, cache: "no-store" });
     lists[name] = r.ok ? `OK (lista ${id}: «${(await r.json()).name}»)` : `Falla la lista ${id}: ${explain(r.status, await brevoMessage(r))}`;
   }
   const allOk = Object.values(lists).every((v) => v.startsWith("OK"));
@@ -82,7 +101,7 @@ export async function POST(req: Request) {
 
   const res = await fetch(`${BREVO}/contacts`, {
     method: "POST",
-    headers: { "api-key": key, "Content-Type": "application/json", accept: "application/json" },
+    headers: { "api-key": key.trim(), "Content-Type": "application/json", accept: "application/json" },
     body: JSON.stringify({ email, listIds: [listId], updateEnabled: true }),
     cache: "no-store",
   });
