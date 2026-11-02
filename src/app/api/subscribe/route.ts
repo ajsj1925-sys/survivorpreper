@@ -2,7 +2,64 @@ import { NextResponse } from "next/server";
 import { BREVO_LISTS } from "@/lib/config";
 
 // Única pieza de servidor de la Fase 1: reenvía el email a Brevo (servidor UE, plan gratuito).
-// Sin BREVO_API_KEY responde ok:false y el cliente lo guarda solo en local.
+// La clave SOLO vive en las variables de Netlify (nunca en el código: el repositorio es público).
+export const dynamic = "force-dynamic";
+
+const BREVO = "https://api.brevo.com/v3";
+
+function listIdFor(source?: string) {
+  return Number(
+    source === "pro-waitlist"
+      ? process.env.BREVO_WAITLIST_LIST_ID || BREVO_LISTS.waitlist
+      : process.env.BREVO_LIST_ID || BREVO_LISTS.reminders,
+  );
+}
+
+/** Traduce el error de Brevo a algo que se entienda. */
+function explain(status: number, message: string) {
+  if (status === 401) {
+    if (/ip/i.test(message)) return "Brevo bloquea la IP del servidor: desactiva el bloqueo en Brevo → Seguridad → IP autorizadas.";
+    return "Brevo no acepta la clave API: revisa BREVO_API_KEY en Netlify (copiada entera, sin espacios) y vuelve a publicar.";
+  }
+  if (status === 404) return "No existe esa lista en Brevo: revisa los números de lista.";
+  if (status === 400 && /list/i.test(message)) return "Problema con la lista de Brevo: revisa los números de lista.";
+  return `Brevo ha respondido ${status}: ${message}`;
+}
+
+async function brevoMessage(res: Response) {
+  try {
+    const j = await res.json();
+    return String(j.message ?? j.code ?? "");
+  } catch {
+    return "";
+  }
+}
+
+/**
+ * Diagnóstico: abre /api/subscribe en el navegador para ver si la conexión con Brevo funciona.
+ * No muestra la clave ni datos de la cuenta; solo si funciona y qué falla.
+ */
+export async function GET() {
+  const key = process.env.BREVO_API_KEY;
+  if (!key) {
+    return NextResponse.json({
+      ok: false,
+      problema: "Netlify no tiene la variable BREVO_API_KEY (o la web no se ha vuelto a publicar desde que la añadiste).",
+    });
+  }
+  const account = await fetch(`${BREVO}/account`, { headers: { "api-key": key, accept: "application/json" }, cache: "no-store" });
+  if (!account.ok) {
+    return NextResponse.json({ ok: false, paso: "clave", problema: explain(account.status, await brevoMessage(account)) });
+  }
+  const lists: Record<string, string> = {};
+  for (const [name, id] of Object.entries({ recordatorios: listIdFor(), listaDeEspera: listIdFor("pro-waitlist") })) {
+    const r = await fetch(`${BREVO}/contacts/lists/${id}`, { headers: { "api-key": key, accept: "application/json" }, cache: "no-store" });
+    lists[name] = r.ok ? `OK (lista ${id}: «${(await r.json()).name}»)` : `Falla la lista ${id}: ${explain(r.status, await brevoMessage(r))}`;
+  }
+  const allOk = Object.values(lists).every((v) => v.startsWith("OK"));
+  return NextResponse.json({ ok: allOk, clave: "Correcta", listas: lists });
+}
+
 export async function POST(req: Request) {
   let body: { email?: string; source?: string; consent?: boolean };
   try {
@@ -13,30 +70,25 @@ export async function POST(req: Request) {
 
   const email = String(body.email ?? "").trim().toLowerCase();
   if (!/^\S+@\S+\.\S+$/.test(email) || email.length > 254) {
-    return NextResponse.json({ ok: false, error: "email" }, { status: 400 });
+    return NextResponse.json({ ok: false, error: "email", message: "Ese email no parece válido." }, { status: 400 });
+  }
+  if (body.consent !== true) {
+    return NextResponse.json({ ok: false, error: "consent", message: "Falta aceptar la política de privacidad." }, { status: 400 });
   }
 
-  if (body.consent !== true) return NextResponse.json({ ok: false, error: "consent" }, { status: 400 });
-
-  // La clave SOLO vive en las variables de Netlify (nunca en el código: el repositorio es público)
   const key = process.env.BREVO_API_KEY;
-  // Listas de Brevo (los números no son secretos): Recordatorios y Lista de espera Pro
-  const listId = Number(
-    body.source === "pro-waitlist"
-      ? process.env.BREVO_WAITLIST_LIST_ID || BREVO_LISTS.waitlist
-      : process.env.BREVO_LIST_ID || BREVO_LISTS.reminders,
-  );
+  const listId = listIdFor(body.source);
   if (!key || !listId) return NextResponse.json({ ok: false, error: "not-configured" });
 
-  const res = await fetch("https://api.brevo.com/v3/contacts", {
+  const res = await fetch(`${BREVO}/contacts`, {
     method: "POST",
     headers: { "api-key": key, "Content-Type": "application/json", accept: "application/json" },
-    body: JSON.stringify({
-      email,
-      listIds: [listId],
-      updateEnabled: true,
-    }),
+    body: JSON.stringify({ email, listIds: [listId], updateEnabled: true }),
+    cache: "no-store",
   });
 
-  return NextResponse.json({ ok: res.ok }, { status: res.ok ? 200 : 502 });
+  if (res.ok) return NextResponse.json({ ok: true });
+  const message = explain(res.status, await brevoMessage(res));
+  console.error("[subscribe] Brevo", res.status, message); // aparece en Netlify → Logs → Functions
+  return NextResponse.json({ ok: false, error: "brevo", message }, { status: 502 });
 }

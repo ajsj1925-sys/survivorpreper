@@ -30,6 +30,7 @@ export function EmailCapture({
   const [value, setValue] = useState(saved ?? "");
   const [consent, setConsent] = useState(false);
   const [state, setState] = useState<"idle" | "sending" | "done">("idle");
+  const [error, setError] = useState<string | null>(null);
 
   // En la lista de espera de Pro dejamos volver a enviarlo aunque ya tengamos el email (es otra lista)
   if ((saved && source !== "pro-waitlist" && state === "idle") || state === "done") {
@@ -42,14 +43,23 @@ export function EmailCapture({
     e.preventDefault();
     if (!/^\S+@\S+\.\S+$/.test(value) || !consent) return;
     setState("sending");
+    setError(null);
     try {
-      await fetch("/api/subscribe", {
+      const res = await fetch("/api/subscribe", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email: value, source, consent: true }),
       });
+      const data = (await res.json().catch(() => ({}))) as { ok?: boolean; error?: string; message?: string };
+      // Si Brevo rechaza el email, lo decimos en vez de fingir que ha ido bien
+      if (!data.ok && data.error && data.error !== "not-configured") {
+        setError(data.message ?? "No hemos podido apuntarte. Inténtalo de nuevo en un rato.");
+        setState("idle");
+        track("email_error", { source, error: data.error });
+        return;
+      }
     } catch {
-      // Sin conexión: lo guardamos igualmente en local
+      // Sin conexión: lo guardamos en local y se reintentará más adelante
     }
     setEmail(value);
     track("email_signup", { source });
@@ -79,6 +89,11 @@ export function EmailCapture({
           {cta}
         </Button>
       </div>
+      {error && (
+        <p role="alert" className="mt-2 rounded-lg bg-red-50 p-2 text-xs text-red-700">
+          {error}
+        </p>
+      )}
       <label className="mt-2 flex items-start gap-2 text-[11px] leading-snug text-stone-600">
         <input type="checkbox" required checked={consent} onChange={(e) => setConsent(e.target.checked)}
           className="mt-0.5 h-4 w-4 shrink-0 p-0" aria-label="Acepto la política de privacidad" />
