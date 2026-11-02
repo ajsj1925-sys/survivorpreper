@@ -1,4 +1,4 @@
-// Service worker de SurvivorOS: la app tiene que abrir aunque no haya red (apagón, sin datos).
+// Service worker de Mi Plan B (las claves internas siguen siendo "survivoros-*" para no perder datos): la app tiene que abrir aunque no haya red (apagón, sin datos).
 const VERSION = "v3";
 const CACHE = `survivoros-${VERSION}`;
 const PRECACHE = ["/app", "/app/kit", "/app/despensa", "/app/compra", "/app/plan", "/app/apagon", "/manifest.webmanifest", "/icons/icon-192.png"];

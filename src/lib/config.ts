@@ -1,9 +1,12 @@
 // Todo lo "de negocio" en un solo sitio para poder cambiar marca, precio o enlaces sin tocar componentes.
 
+/** Nombres antiguos: las copias de seguridad hechas con ellos se siguen aceptando. */
+export const LEGACY_BRAND_NAMES = ["SurvivorOS"];
+
 export const BRAND = {
-  name: "SurvivorOS",
+  name: "Mi Plan B",
   tagline: "Tu hogar preparado para cualquier emergencia",
-  footer: "Hecho con SurvivorOS",
+  footer: "Hecho con Mi Plan B",
 };
 
 export const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://survivorpreper.netlify.app";

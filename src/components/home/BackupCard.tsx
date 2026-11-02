@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef, useState } from "react";
-import { BRAND } from "@/lib/config";
+import { BRAND, LEGACY_BRAND_NAMES } from "@/lib/config";
 import { toISODate, today } from "@/lib/calc";
 import { useStore, type BackupData } from "@/lib/store";
 import { track } from "@/lib/track";
@@ -25,7 +25,7 @@ export function BackupCard() {
     const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
     const a = document.createElement("a");
     a.href = URL.createObjectURL(blob);
-    a.download = `survivoros-copia-${toISODate(today())}.json`;
+    a.download = `miplanb-copia-${toISODate(today())}.json`;
     a.click();
     URL.revokeObjectURL(a.href);
     track("backup_export");
@@ -36,13 +36,13 @@ export function BackupCard() {
     try {
       const json = JSON.parse(await f.text());
       const d = json?.data as BackupData | undefined;
-      if (json?.app !== BRAND.name || !d || !Array.isArray(d.kit) || !Array.isArray(d.pantry)) throw new Error("formato");
+      if ((json?.app !== BRAND.name && !LEGACY_BRAND_NAMES.includes(json?.app)) || !d || !Array.isArray(d.kit) || !Array.isArray(d.pantry)) throw new Error("formato");
       if (!confirm("Esto sustituirá los datos actuales por los de la copia. ¿Seguir?")) return;
       importData(d);
       track("backup_import");
       setMsg(`✓ Copia restaurada: ${d.kit.length} cosas en el kit y ${d.pantry.length} lotes en la despensa.`);
     } catch {
-      setMsg("Ese archivo no es una copia válida de SurvivorOS.");
+      setMsg("Ese archivo no es una copia válida de Mi Plan B.");
     }
   }
 

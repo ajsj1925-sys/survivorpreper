@@ -1,4 +1,4 @@
-/** Logo de SurvivorOS: escudo con casa. */
+/** Logo de Mi Plan B: escudo con casa. */
 export function LogoMark({ className = "h-8 w-8" }: { className?: string }) {
   return (
     <svg viewBox="0 0 512 512" className={className} aria-hidden="true">
@@ -21,7 +21,7 @@ export function Logo({ className = "" }: { className?: string }) {
     <span className={`inline-flex items-center gap-2 ${className}`}>
       <LogoMark className="h-8 w-8" />
       <span className="text-lg font-extrabold tracking-tight">
-        Survivor<span className="text-brand-500">OS</span>
+        Mi Plan <span className="text-brand-500">B</span>
       </span>
     </span>
   );

@@ -58,7 +58,7 @@ export function PaywallModal() {
           </button>
         </div>
         <h2 id="paywall-title" className="mt-4 text-xl font-semibold">
-          {href ? `Desbloquea SurvivorOS Pro por ${PRO.price}` : "SurvivorOS Pro llega pronto"}
+          {href ? `Desbloquea Mi Plan B Pro por ${PRO.price}` : "Mi Plan B Pro llega pronto"}
         </h2>
         <p className="mt-1 text-sm text-stone-600">«{feature}» será parte de Pro.</p>
         <ul className="mt-4 space-y-2">

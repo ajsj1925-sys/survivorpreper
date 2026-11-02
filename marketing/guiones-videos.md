@@ -1,4 +1,4 @@
-# 12 guiones de vídeos cortos (TikTok / Reels / Shorts) — SurvivorOS
+# 12 guiones de vídeos cortos (TikTok / Reels / Shorts) — Mi Plan B
 
 Formato: 20–35 s, vertical, grabando la pantalla del móvil + tu voz o texto en pantalla.
 Regla: el gancho en los 2 primeros segundos. Siempre terminar con: «Gratis y sin registro: enlace en el perfil».

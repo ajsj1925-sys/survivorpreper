@@ -1,4 +1,4 @@
-# SurvivorOS
+# Mi Plan B (antes SurvivorOS)
 
 Web-app local-first de preparación ante emergencias: Kit 72 h, Despensa con semáforo de caducidad y Plan familiar imprimible.
 
