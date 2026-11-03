@@ -13,6 +13,9 @@ export function PublicHeader() {
           <Link href="/guias" className="text-stone-600 hover:text-stone-900">
             Guías
           </Link>
+          <Link href="/emergencias" className="hidden text-stone-600 hover:text-stone-900 sm:inline">
+            Tu comunidad
+          </Link>
           <Link href="/app" className="rounded-lg bg-brand-500 px-3 py-1.5 font-medium text-white hover:bg-brand-600">
             Abrir app
           </Link>
@@ -30,6 +33,7 @@ export function PublicFooter() {
         <div className="flex flex-wrap gap-4">
           <Link href="/guias" className="hover:text-stone-800">Guías</Link>
           <Link href="/guias/que-hacer-en-un-apagon" className="hover:text-stone-800">Apagón</Link>
+          <Link href="/emergencias" className="hover:text-stone-800">Por comunidad</Link>
           <Link href="/aviso-legal" className="hover:text-stone-800">Aviso legal</Link>
           <Link href="/privacidad" className="hover:text-stone-800">Privacidad</Link>
         </div>

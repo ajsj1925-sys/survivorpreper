@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { Plus, Printer, Share2, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { BRAND, SITE_URL } from "@/lib/config";
@@ -84,6 +85,10 @@ export function PlanView() {
               className="flex items-center gap-1.5 rounded-full bg-brand-500 px-3 py-1.5 text-sm font-medium text-white shadow-sm">
               <Printer className="h-4 w-4" /> Imprimir
             </button>
+            <Link href="/app/plan/tarjeta" onClick={() => track("paper_open", { what: "card" })}
+              className="flex items-center gap-1.5 rounded-full bg-white px-3 py-1.5 text-sm font-medium shadow-sm ring-1 ring-stone-200">
+              Tarjeta
+            </Link>
             <button onClick={share} aria-label="Compartir" className="rounded-full bg-white p-2 shadow-sm ring-1 ring-stone-200">
               <Share2 className="h-4 w-4" />
             </button>

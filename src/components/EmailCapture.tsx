@@ -5,6 +5,7 @@ import { Mail } from "lucide-react";
 import { useState, type FormEvent } from "react";
 import { useStore } from "@/lib/store";
 import { track } from "@/lib/track";
+import { markProJoined } from "@/lib/nudge";
 import { Button, cn } from "./ui";
 
 /** Captura de email con consentimiento RGPD explícito. */
@@ -62,6 +63,7 @@ export function EmailCapture({
       // Sin conexión: lo guardamos en local y se reintentará más adelante
     }
     setEmail(value);
+    if (source === "pro-waitlist") markProJoined();
     track("email_signup", { source });
     setState("done");
   }

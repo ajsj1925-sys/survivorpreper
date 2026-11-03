@@ -60,7 +60,9 @@ export function PaywallModal() {
         <h2 id="paywall-title" className="mt-4 text-xl font-semibold">
           {href ? `Desbloquea Mi Plan B Pro por ${PRO.price}` : "Mi Plan B Pro llega pronto"}
         </h2>
-        <p className="mt-1 text-sm text-stone-600">«{feature}» será parte de Pro.</p>
+        <p className="mt-1 text-sm text-stone-600">
+          {href ? <>«{feature}» es parte de Pro.</> : <>¿Te gustaría <b>«{feature}»</b>? Llegará con Pro. Déjanos tu email y te avisamos en cuanto esté activo.</>}
+        </p>
         <ul className="mt-4 space-y-2">
           {PRO.features.map((f) => (
             <li key={f} className="flex gap-2 text-sm">
@@ -84,7 +86,8 @@ export function PaywallModal() {
             done="✓ Estás en la lista. Te escribiremos en cuanto Pro esté listo."
           />
         )}
-        <p className="mt-3 text-center text-xs text-stone-500">Todo lo gratuito sigue siendo gratis y tus datos se quedan en tu móvil.</p>
+        <button onClick={close} className="mt-3 w-full rounded-lg py-2 text-sm font-medium text-stone-500 hover:bg-stone-100">Ahora no</button>
+        <p className="mt-1 text-center text-xs text-stone-500">Todo lo gratuito sigue siendo gratis y tus datos se quedan en tu móvil.</p>
       </div>
     </div>
   );

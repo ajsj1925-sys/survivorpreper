@@ -12,6 +12,7 @@ import { Button, Card } from "@/components/ui";
 import { Ring, Stepper } from "@/components/visual";
 import { track } from "@/lib/track";
 import { BackupCard } from "./BackupCard";
+import { PaperCard } from "@/components/PaperCard";
 import { ThemeToggle } from "@/components/Theme";
 import { Icon, IconTile } from "@/components/icons/Icon";
 
@@ -110,6 +111,8 @@ export function HomeView() {
         </div>
         <span className="text-2xl">›</span>
       </Link>
+
+      <PaperCard />
 
       <BackupCard />
 

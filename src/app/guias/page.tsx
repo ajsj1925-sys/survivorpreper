@@ -18,6 +18,9 @@ export default function GuidesIndex() {
       <main className="mx-auto max-w-5xl px-4 py-12">
         <h1 className="text-3xl font-bold tracking-tight">Guías de preparación</h1>
         <p className="mt-2 max-w-2xl text-stone-600">Todo lo que necesitas saber para que tu casa aguante un apagón o una emergencia, explicado en corto y con listas prácticas.</p>
+        <Link href="/emergencias" className="mt-6 flex items-center gap-3 rounded-3xl bg-brand-50 p-4 font-medium text-brand-700 ring-1 ring-brand-100 hover:ring-brand-500">
+          <IconTile name="map-pin" tone="orange" size="sm" /> ¿Qué riesgos hay en tu comunidad? Mira la tuya →
+        </Link>
         <div className="mt-8 grid gap-3 sm:grid-cols-2">
           {all.map((g) => (
             <Link key={g.slug} href={`/guias/${g.slug}`} className="flex gap-4 rounded-3xl bg-white p-5 ring-1 ring-stone-200 transition hover:ring-brand-500">
