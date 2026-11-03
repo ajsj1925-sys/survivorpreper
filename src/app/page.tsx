@@ -93,6 +93,12 @@ export default function Landing() {
               </div>
             ))}
           </div>
+          <figure className="mx-auto mt-8 max-w-4xl overflow-hidden rounded-3xl bg-white shadow-sm ring-1 ring-stone-200">
+            <video controls playsInline preload="none" poster="/videos/tutorial-poster.jpg" className="aspect-video w-full bg-stone-100" aria-label="Tutorial: cómo usar Mi Plan B en 9 pasos">
+              <source src="/videos/tutorial.mp4" type="video/mp4" />
+            </video>
+            <figcaption className="px-5 py-3 text-center text-sm text-stone-600">Mira cómo funciona en 1 minuto y medio</figcaption>
+          </figure>
         </section>
 
         <section className="mx-auto mt-16 max-w-2xl px-4">
