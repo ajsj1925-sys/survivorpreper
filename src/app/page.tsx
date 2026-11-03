@@ -97,7 +97,7 @@ export default function Landing() {
             <video controls playsInline preload="none" poster="/videos/tutorial-poster.jpg" className="aspect-video w-full bg-stone-100" aria-label="Tutorial: cómo usar Mi Plan B en 9 pasos">
               <source src="/videos/tutorial.mp4" type="video/mp4" />
             </video>
-            <figcaption className="px-5 py-3 text-center text-sm text-stone-600">Mira cómo funciona en 1 minuto y medio</figcaption>
+            <figcaption className="px-5 py-3 text-center text-sm text-stone-600">Mira cómo funciona en 2 minutos</figcaption>
           </figure>
         </section>
 
