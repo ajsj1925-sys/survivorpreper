@@ -13,6 +13,7 @@ import { Ring, Stepper } from "@/components/visual";
 import { track } from "@/lib/track";
 import { BackupCard } from "./BackupCard";
 import { PaperCard } from "@/components/PaperCard";
+import { AutonomyPanel } from "@/components/reserves/AutonomyPanel";
 import { ThemeToggle } from "@/components/Theme";
 import { Icon, IconTile } from "@/components/icons/Icon";
 
@@ -101,6 +102,8 @@ export function HomeView() {
           ))}
         </ul>
       </Card>
+
+      <AutonomyPanel compact />
 
       <Link href="/app/apagon"
         className="mb-4 flex items-center gap-4 rounded-3xl bg-stone-900 p-4 text-white shadow-sm active:scale-[0.99]">

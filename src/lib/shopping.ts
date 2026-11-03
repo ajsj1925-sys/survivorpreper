@@ -8,14 +8,21 @@ export interface ShopLine {
   icon: string;
   name: string;
   qty: number;
-  reason: "falta" | "caduca" | "caducado";
+  reason: "falta" | "caduca" | "caducado" | "minimo";
   catalog?: CatalogItem;
   lotId?: string;
 }
 
 /** Lista de la compra automática: lo que falta del kit recomendado + lo que caduca en la despensa. */
-export function shoppingList(h: Household, kit: KitItem[], pantry: PantryLot[]): ShopLine[] {
+export function shoppingList(h: Household, kit: KitItem[], pantry: PantryLot[], minStock: Record<string, number> = {}): ShopLine[] {
   const lines: ShopLine[] = [];
+  // Stock mínimo de la despensa: si bajas del mínimo, se repone
+  for (const [id, min] of Object.entries(minStock)) {
+    const c = CATALOG_BY_ID[id];
+    if (!c) continue;
+    const have = pantry.filter((l) => l.catalogId === id && daysUntil(l.expiresAt) >= 0).reduce((s, l) => s + l.qty, 0);
+    if (have < min) lines.push({ key: `min-${id}`, icon: c.icon, name: c.name, qty: min - have, reason: "minimo", catalog: c });
+  }
   for (const r of recommendationStatus(h, kit)) {
     if (r.have < r.target) {
       lines.push({ key: `rec-${r.item.id}`, icon: r.item.icon, name: r.item.name, qty: r.target - r.have, reason: "falta", catalog: r.item });
@@ -30,6 +37,6 @@ export function shoppingList(h: Household, kit: KitItem[], pantry: PantryLot[]):
       });
     }
   }
-  const order = { caducado: 0, caduca: 1, falta: 2 };
+  const order = { caducado: 0, caduca: 1, minimo: 2, falta: 3 };
   return lines.sort((a, b) => order[a.reason] - order[b.reason]);
 }

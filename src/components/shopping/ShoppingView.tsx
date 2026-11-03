@@ -13,13 +13,14 @@ const REASON = {
   caducado: { label: "Caducado", cls: "bg-red-100 text-red-700" },
   caduca: { label: "Caduca pronto", cls: "bg-amber-100 text-amber-800" },
   falta: { label: "Falta en el kit", cls: "bg-stone-100 text-stone-600" },
+  minimo: { label: "Bajo el mínimo", cls: "bg-violet-100 text-violet-700" },
 };
 
 export function ShoppingView() {
   const hydrated = useHydrated();
-  const { household, kit, pantry, addFromCatalog, restockLot, setActiveKit } = useStore();
+  const { household, kit, pantry, minStock, addFromCatalog, addPantryFromCatalog, restockLot, setActiveKit } = useStore();
   if (!hydrated) return <div className="h-96 animate-pulse rounded-3xl bg-stone-200/60" />;
-  const lines = shoppingList(household, mainKitItems(kit), pantry);
+  const lines = shoppingList(household, mainKitItems(kit), pantry, minStock);
 
   async function copy() {
     const txt = lines.map((l) => `☐ ${l.name} ×${l.qty}`).join("\n");
@@ -58,6 +59,7 @@ export function ShoppingView() {
                 aria-label={`Ya lo tengo: ${l.name}`}
                 onClick={() => {
                   if (l.lotId) return restockLot(l.lotId);
+                  if (l.reason === "minimo" && l.catalog) return addPantryFromCatalog(l.catalog, l.qty); // repone la despensa
                   setActiveKit(MAIN_KIT); // lo que falta es de la mochila de casa
                   if (l.catalog) addFromCatalog(l.catalog, l.qty);
                 }}

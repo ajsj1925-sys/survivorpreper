@@ -58,6 +58,8 @@ export interface Household {
   waterPerPersonL: number;
   waterPerPetL: number;
   onboarded: boolean;
+  /** Objetivo de autonomía en días (3, 14, 30 o 90). */
+  goalDays?: number;
 }
 
 export interface FamilyMember {

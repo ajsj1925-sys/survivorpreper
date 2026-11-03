@@ -2,21 +2,23 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Backpack, BookOpen, House, Package, ShoppingCart, Users, Zap } from "lucide-react";
+import { Backpack, BookOpen, House, Package, ShoppingCart, Users, Warehouse, Zap } from "lucide-react";
 import { cn } from "./ui";
 import { ProButton } from "./Paywall";
 import { Logo } from "./Logo";
 import { ThemeToggle } from "./Theme";
 
-const NAV = [
+const NAV: { href: string; label: string; icon: typeof House; also?: string[] }[] = [
   { href: "/app", label: "Inicio", icon: House },
   { href: "/app/kit", label: "Kit 72 h", icon: Backpack },
   { href: "/app/despensa", label: "Despensa", icon: Package },
+  { href: "/app/reservas", label: "Reservas", icon: Warehouse, also: ["/app/agua", "/app/energia", "/app/menu", "/app/escenarios"] },
   { href: "/app/compra", label: "Compra", icon: ShoppingCart },
   { href: "/app/plan", label: "Plan", icon: Users },
 ];
 
-const isActive = (path: string | null, href: string) => (href === "/app" ? path === "/app" : !!path?.startsWith(href));
+const isActive = (path: string | null, href: string, also: string[] = []) =>
+  href === "/app" ? path === "/app" : [href, ...also].some((h) => !!path?.startsWith(h));
 
 export function Sidebar() {
   const path = usePathname();
@@ -28,13 +30,13 @@ export function Sidebar() {
           <Logo />
         </Link>
         <nav className="flex flex-col gap-1">
-          {NAV.map(({ href, label, icon: Icon }) => (
+          {NAV.map(({ href, label, icon: Icon, also }) => (
             <Link
               key={href}
               href={href}
               className={cn(
                 "flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition",
-                isActive(path, href) ? "bg-brand-50 text-brand-700" : "text-stone-600 hover:bg-stone-100",
+                isActive(path, href, also) ? "bg-brand-50 text-brand-700" : "text-stone-600 hover:bg-stone-100",
               )}
             >
               <Icon className="h-4 w-4" />
@@ -69,14 +71,14 @@ export function Sidebar() {
       </aside>
 
       {/* Móvil: barra inferior */}
-      <nav className="no-print fixed inset-x-0 bottom-0 z-40 grid grid-cols-5 border-t border-stone-200 bg-white/95 pb-[env(safe-area-inset-bottom)] backdrop-blur md:hidden">
-        {NAV.map(({ href, label, icon: Icon }) => (
+      <nav className="no-print fixed inset-x-0 bottom-0 z-40 grid grid-cols-6 border-t border-stone-200 bg-white/95 pb-[env(safe-area-inset-bottom)] backdrop-blur md:hidden">
+        {NAV.map(({ href, label, icon: Icon, also }) => (
           <Link
             key={href}
             href={href}
             className={cn(
-              "flex flex-col items-center gap-1 py-2.5 text-[11px] font-medium",
-              isActive(path, href) ? "text-brand-600" : "text-stone-500",
+              "flex flex-col items-center gap-1 py-2.5 text-[10px] font-medium",
+              isActive(path, href, also) ? "text-brand-600" : "text-stone-500",
             )}
           >
             <Icon className="h-5 w-5" />

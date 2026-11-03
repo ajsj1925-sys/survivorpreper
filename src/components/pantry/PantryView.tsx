@@ -10,6 +10,7 @@ import { Icon, IconTile } from "@/components/icons/Icon";
 import type { Tone } from "@/lib/catalog";
 import { AddLotSheet, type DraftProduct } from "./AddLotSheet";
 import { Scanner } from "./Scanner";
+import { PantryExtras } from "./PantryExtras";
 
 const TYPES: [PantryType | "todos", string, string][] = [["todos", "Todo", "sparkle"], ["alimento", "Comida", "bowl-food"], ["agua", "Agua", "drop"], ["medicina", "Medicinas", "pill"], ["higiene", "Higiene", "hand-soap"], ["otro", "Otro", "package"]];
 
@@ -116,6 +117,8 @@ export function PantryView() {
           })}
         </div>
       )}
+
+      <div className="mt-6"><PantryExtras /></div>
 
       <AddLotSheet open={addOpen} onClose={() => { setAddOpen(false); setScanned(null); }} initial={scanned} />
       <Scanner open={scanOpen} onClose={() => setScanOpen(false)}

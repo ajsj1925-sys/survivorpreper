@@ -7,6 +7,7 @@ import { DEFAULTS } from "./config";
 import { CATALOG_BY_ID, type CatalogItem } from "./catalog";
 import { addDays, parseISODate, toISODate, today } from "./calc";
 import type { FamilyMember, FamilyPlan, Household, Kit, KitItem, PantryLot } from "./types";
+import { NO_SOURCES, type WaterSources } from "./autonomy";
 
 export const MAIN_KIT = "main";
 export const FREE_KITS = 2; // más mochilas = Pro
@@ -36,6 +37,9 @@ export interface BackupData {
   pantry: PantryLot[];
   plan: FamilyPlan;
   checkedEssentials: string[];
+  minStock?: Record<string, number>;
+  waterSources?: WaterSources;
+  scenarioChecks?: string[];
 }
 
 interface AppState {
@@ -50,6 +54,9 @@ interface AppState {
   plan: FamilyPlan;
   email: string | null;
   isPro: boolean;
+  minStock: Record<string, number>; // stock mínimo por producto del catálogo
+  waterSources: WaterSources; // termo, bañera, cisternas
+  scenarioChecks: string[]; // casillas marcadas a mano en los escenarios
 
   setHousehold: (patch: Partial<Household>) => void;
   completeOnboarding: (patch: Partial<Household>) => void;
@@ -78,6 +85,13 @@ interface AppState {
   removeMember: (id: string) => void;
 
   setEmail: (email: string) => void;
+  setMinStock: (catalogId: string, n: number) => void;
+  setWaterSources: (patch: Partial<WaterSources>) => void;
+  toggleScenarioCheck: (id: string) => void;
+  /** Cantidad en la mochila de CASA (la que cuenta), sin depender de la mochila activa. */
+  setMainQty: (c: CatalogItem, qty: number) => void;
+  /** Añade a la despensa desde el catálogo, con su caducidad típica. */
+  addPantryFromCatalog: (c: CatalogItem, qty?: number) => void;
   importData: (data: BackupData) => void;
   resetAll: () => void;
 }
@@ -92,6 +106,7 @@ const initial = {
     waterPerPersonL: DEFAULTS.waterPerPersonL,
     waterPerPetL: 1,
     onboarded: false,
+    goalDays: 3,
   },
   kits: [{ id: MAIN_KIT, name: "Casa", icon: "house" }] as Kit[],
   activeKitId: MAIN_KIT,
@@ -103,6 +118,9 @@ const initial = {
   plan: emptyPlan,
   email: null as string | null,
   isPro: false,
+  minStock: {} as Record<string, number>,
+  waterSources: NO_SOURCES as WaterSources,
+  scenarioChecks: [] as string[],
 };
 
 export const useStore = create<AppState>()(
@@ -201,6 +219,31 @@ export const useStore = create<AppState>()(
         })),
 
       setEmail: (email) => set({ email }),
+      setMinStock: (id, n) =>
+        set((s) => {
+          const minStock = { ...s.minStock };
+          if (n > 0) minStock[id] = n; else delete minStock[id];
+          return { minStock };
+        }),
+      setWaterSources: (patch) => set((s) => ({ waterSources: { ...s.waterSources, ...patch } })),
+      toggleScenarioCheck: (id) =>
+        set((s) => ({ scenarioChecks: s.scenarioChecks.includes(id) ? s.scenarioChecks.filter((x) => x !== id) : [...s.scenarioChecks, id] })),
+      setMainQty: (c, qty) =>
+        set((s) => {
+          const mine = (i: KitItem) => i.catalogId === c.id && (i.kitId ?? MAIN_KIT) === MAIN_KIT;
+          const ex = s.kit.find(mine);
+          if (qty <= 0) return { kit: s.kit.filter((i) => !mine(i)) };
+          if (ex) return { kit: s.kit.map((i) => (i === ex ? { ...i, qty } : i)) };
+          return { kit: [...s.kit, kitFromCatalog(c, qty, MAIN_KIT)] };
+        }),
+      addPantryFromCatalog: (c, qty = 1) =>
+        set((s) => ({
+          pantry: [...s.pantry, {
+            id: uid(), addedAt: new Date().toISOString(), catalogId: c.id, icon: c.icon, name: c.name, type: c.pantry ?? "otro",
+            qty, unit: c.unit, kcal: c.kcal, waterL: c.waterL, location: "Despensa",
+            expiresAt: toISODate(addDays(today(), c.shelfDays ?? 365)),
+          }],
+        })),
       importData: (d) =>
         set({
           household: { ...initial.household, ...d.household, onboarded: true },
@@ -210,12 +253,15 @@ export const useStore = create<AppState>()(
           pantry: d.pantry ?? [],
           plan: { ...emptyPlan, ...d.plan },
           checkedEssentials: d.checkedEssentials ?? [],
+          minStock: d.minStock ?? {},
+          waterSources: { ...NO_SOURCES, ...d.waterSources },
+          scenarioChecks: d.scenarioChecks ?? [],
         }),
       resetAll: () => set({ ...initial }),
     }),
     {
       name: "survivoros-v1",
-      version: 4,
+      version: 5,
       migrate: (persisted, version) => {
         const p = persisted as Partial<AppState>;
         if (version < 2) {
@@ -233,6 +279,13 @@ export const useStore = create<AppState>()(
           p.kits = initial.kits;
           p.activeKitId = MAIN_KIT;
           p.kit = (p.kit ?? []).map((i) => ({ ...i, kitId: i.kitId ?? MAIN_KIT }));
+        }
+        if (version < 5) {
+          // v5: niveles de autonomía, stock mínimo, fuentes de agua y escenarios
+          p.household = { ...initial.household, ...p.household, goalDays: p.household?.goalDays ?? 3 };
+          p.minStock = p.minStock ?? {};
+          p.waterSources = { ...NO_SOURCES, ...p.waterSources };
+          p.scenarioChecks = p.scenarioChecks ?? [];
         }
         return p as AppState;
       },
