@@ -18,8 +18,8 @@ if not exist node_modules (
   call npm install
 )
 echo.
-echo Abriendo Mi Plan B en http://localhost:3333
+echo Abriendo Mi Plan B en http://localhost:3333/app
 echo Para pararla, cierra esta ventana.
-start "" cmd /c "timeout /t 10 >nul & start http://localhost:3333"
+start "" cmd /c "timeout /t 15 >nul & start http://localhost:3333/app"
 call npm run dev -- -p 3333
 pause
