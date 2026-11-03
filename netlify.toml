@@ -2,6 +2,9 @@
 [build]
   command = "npm run build"
   publish = ".next"
+  # Cada publicación cuesta créditos en el plan gratis: solo publicamos si cambia la app de verdad.
+  # (Los cambios en marketing/, emails/ o documentos no publican.) Salir con 0 = saltar la publicación.
+  ignore = "git diff --quiet $CACHED_COMMIT_REF $COMMIT_REF -- src public package.json package-lock.json netlify.toml next.config.mjs next.config.ts tsconfig.json postcss.config.mjs"
 
 [build.environment]
   NODE_VERSION = "22"
