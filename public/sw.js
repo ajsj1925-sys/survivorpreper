@@ -1,7 +1,7 @@
 // Service worker de Mi Plan B (las claves internas siguen siendo "survivoros-*" para no perder datos): la app tiene que abrir aunque no haya red (apagón, sin datos).
-const VERSION = "v3";
+const VERSION = "v4";
 const CACHE = `survivoros-${VERSION}`;
-const PRECACHE = ["/app", "/app/kit", "/app/despensa", "/app/compra", "/app/plan", "/app/apagon", "/manifest.webmanifest", "/icons/icon-192.png"];
+const PRECACHE = ["/app", "/app/kit", "/app/despensa", "/app/reservas", "/app/compra", "/app/plan", "/app/apagon", "/manifest.webmanifest", "/icons/icon-192.png"];
 
 self.addEventListener("install", (event) => {
   event.waitUntil(caches.open(CACHE).then((c) => c.addAll(PRECACHE)).then(() => self.skipWaiting()));
@@ -17,6 +17,8 @@ self.addEventListener("activate", (event) => {
 });
 
 self.addEventListener("fetch", (event) => {
+  // En local no se usa caché: siempre la versión más nueva
+  if (self.location.hostname === "localhost" || self.location.hostname === "127.0.0.1") return;
   const req = event.request;
   if (req.method !== "GET") return;
   const url = new URL(req.url);

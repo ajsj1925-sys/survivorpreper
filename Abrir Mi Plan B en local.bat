@@ -10,6 +10,8 @@ if errorlevel 1 (
   pause
   exit /b
 )
+rem Si quedaba otra version de la app abierta (puerto 3000), la cerramos para no ver la vieja
+for /f "tokens=5" %%a in ('netstat -ano ^| findstr :3000 ^| findstr LISTENING') do taskkill /F /PID %%a >nul 2>&1
 if not exist node_modules (
   echo.
   echo Preparando la app. Solo la primera vez, tarda unos minutos...
